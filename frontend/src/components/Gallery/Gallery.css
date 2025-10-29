@@ -1,0 +1,25 @@
+.gallery-grid {
+  /* This creates a responsive grid */
+  display: grid;
+  
+  /* This is the magic part:
+    - It tries to fit columns that are at least 300px wide.
+    - 'auto-fit' tells it to create as many columns as will fit.
+    - '1fr' means each column will be the same width.
+  */
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  
+  /* Adds spacing between the images */
+  gap: 20px;
+}
+
+.gallery-item img {
+  /* Make the image fill its container */
+  width: 100%;
+  height: auto;
+  
+  /* Add a subtle border and rounded corners */
+  border-radius: 8px;
+  border: 3px solid #1565c0; /* Matches our theme */
+  display: block; /* Fixes any weird alignment issues */
+}

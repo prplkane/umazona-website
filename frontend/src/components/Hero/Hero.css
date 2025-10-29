@@ -1,0 +1,42 @@
+.hero-section {
+  text-align: center;
+  padding: 100px 20px;
+  /* This is a great place to add your main background image 
+    from the prototype later 
+  */
+  /* background-image: url('/path/to/your/logo-bg.jpg'); */
+  background-size: cover;
+  background-position: center;
+}
+
+.hero-section h1 {
+  /* This is for your big UMAZONA logo */
+  font-size: 5rem;
+  margin: 0 0 10px 0;
+  color: #fff;
+  /* You will replace this text with your logo image */
+}
+
+.hero-section p {
+  font-size: 1.5rem;
+  color: #bbdefb;
+  margin-bottom: 30px;
+}
+
+.hero-button {
+  display: inline-block;
+  margin: 10px;
+  padding: 12px 30px;
+  background-color: #bbdefb;
+  color: #0d47a1;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  font-size: 1.1rem;
+}
+
+.hero-button:hover {
+  background-color: #fff;
+  transform: translateY(-2px); /* Slight lift on hover */
+}

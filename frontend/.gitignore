@@ -1,0 +1,11 @@
+node_modules/
+build/
+dist/
+.cache/
+.parcel-cache/
+.next/
+out/
+public/build/
+*.tgz
+*.zip
+node_modules

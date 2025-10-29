@@ -1,0 +1,52 @@
+.site-footer {
+  /* This creates the top border from your prototype */
+  border-top: 2px solid #1565c0;
+  background-color: #0d47a1; /* Dark blue background */
+  color: #bbdefb; /* Light blue text */
+  padding: 50px 20px;
+  font-size: 0.9rem;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap; /* Allows columns to wrap on small screens */
+  gap: 30px; /* Space between columns */
+  margin-bottom: 30px;
+}
+
+.footer-column {
+  flex: 1; /* Each column tries to take equal space */
+  min-width: 200px; /* Prevents columns from getting too small */
+}
+
+.footer-column h4 {
+  color: #fff; /* White heading */
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+}
+
+.footer-column p,
+.footer-column a {
+  color: #bbdefb;
+  text-decoration: none;
+  display: block; /* Makes links stack vertically */
+  margin-bottom: 10px;
+  transition: color 0.2s;
+}
+
+.footer-column a:hover {
+  color: #fff; /* White on hover */
+}
+
+.footer-social {
+  text-align: center;
+  border-top: 1px solid #1565c0; /* Faint line above the copyright */
+  padding-top: 30px;
+  color: #8aacc8; /* Muted text color */
+}

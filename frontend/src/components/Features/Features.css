@@ -1,0 +1,45 @@
+.features-section {
+  /* This section in the prototype had a different background */
+  background-color: #1565c0; /* Lighter blue */
+}
+
+.features-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  gap: 30px; /* Space between the cards */
+  flex-wrap: wrap; /* Allows cards to stack on small screens */
+}
+
+.feature-card {
+  /* This creates the card from your prototype */
+  background-color: #0d47a1; /* Dark blue */
+  border-radius: 8px;
+  padding: 30px;
+  
+  /* Sizing for the 3-column layout */
+  flex: 1; /* Each card tries to take equal space */
+  min-width: 280px; /* Each card must be at least 280px wide */
+  max-width: 350px; /* Each card won't get larger than 350px */
+  
+  text-align: center;
+  border: 2px solid #bbdefb; /* Light blue border */
+}
+
+.feature-icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+}
+
+.feature-title {
+  font-size: 1.5rem;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.feature-description {
+  font-size: 1rem;
+  color: #bbdefb;
+  line-height: 1.5;
+}

@@ -1,0 +1,73 @@
+.navbar {
+  /* This makes the navbar stick to the top */
+  position: sticky;
+  top: 0;
+  z-index: 999; /* Stays on top of other content */
+  
+  /* Styling to match your prototype */
+  background-color: #0d47a1; /* Dark blue */
+  border-bottom: 2px solid #1565c0; /* Lighter blue border */
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+}
+
+.navbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 20px; /* Matches the padding in App.js */
+}
+
+.navbar-logo {
+  color: #fff;
+  text-decoration: none;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.nav-menu {
+  display: flex;
+  list-style: none;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-item {
+  height: 80px;
+}
+
+.nav-link {
+  color: #fff;
+  text-decoration: none;
+  padding: 0 1rem;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+  color: #bbdefb; /* Light blue on hover */
+  border-bottom: 4px solid #bbdefb;
+}
+
+/* Special style for the contact button */
+.nav-button {
+  background-color: #bbdefb; /* Light blue */
+  color: #0d47a1; /* Dark blue text */
+  padding: 8px 20px;
+  border-radius: 4px;
+  margin-left: 1rem;
+}
+
+.nav-button:hover {
+  background-color: #fff;
+  color: #0d47a1;
+  border-bottom: none;
+}
