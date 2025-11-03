@@ -1,3 +1,10 @@
+/* Global resets */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 /* 1. Global Smooth Scroll */
 html {
   scroll-behavior: smooth;
@@ -10,17 +17,21 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
-  
-  /* Matches your prototype's background */
-  background-color: #0d47a1; /* A dark blue */
-  color: white; /* White text */
+
+  /* Foundation background */
+  background: linear-gradient(180deg, #031a44 0%, #002c7f 100%);
+  color: #f4f7ff;
+  padding-top: var(--navbar-height, 80px);
+  overflow-x: hidden;
 }
 
 /* 3. App Container */
 .App {
-  max-width: 1200px;
-  margin: 0 auto; /* Center the page */
-  padding: 0 20px; /* Some side padding */
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
 }
 
 /* 4. Section Styling */
@@ -57,31 +68,7 @@ header#home h1 {
   color: #bbdefb; /* Light blue text */
 }
 
-/* Hero section */
-/* Hero Section (replaces the old header styles) */
-.hero-section {
-  text-align: center;
-  padding: 100px 20px;
-  /* You can add a background image here later */
-}
-
-.hero-section h1 {
-  font-size: 5rem;
-  margin: 0;
-}
-
-.hero-button {
-  display: inline-block;
-  margin: 10px;
-  padding: 12px 30px;
-  background-color: #bbdefb;
-  color: #0d47a1;
-  text-decoration: none;
-  font-weight: bold;
-  border-radius: 4px;
-  transition: all 0.2s ease;
-}
-
-.hero-button:hover {
-  background-color: #fff;
+/* Additional global tweaks */
+main {
+  flex: 1;
 }

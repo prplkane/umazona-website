@@ -26,12 +26,12 @@ function Navbar() {
             </a>
           </li>
           <li className="nav-item">
-            <a href="#gallery" className="nav-link">
+            <a href="#gallery" className="nav-link nav-link--accent">
               Gallery
             </a>
           </li>
           <li className="nav-item">
-            <a href="#contact" className="nav-link nav-button">
+            <a href="#contact" className="nav-link nav-link--accent">
               Contact Us
             </a>
           </li>

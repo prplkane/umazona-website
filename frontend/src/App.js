@@ -2,12 +2,12 @@ import React, { useState, useEffect} from "react";
 import './index.css'
 
 //components
-import ContactForm from './components/ContactForm/ContactForm.js';
-import Gallery from './components/Gallery/Gallery.js';
 import Navbar from './components/Navbar/Navbar.js';
 import Footer from './components/Footer/Footer.js';
-import About from './components/About/About.js';
+import Gallery from './components/Gallery/Gallery.js';
+import NextGames from './components/NextGames/NextGames.js';
 import Features from './components/Features/Features.js';
+import Extras from './components/Extras/Extras.js';
 import Hero from './components/Hero/Hero.js';
 import Events from './components/Events/Events.js';
 
@@ -53,16 +53,20 @@ function App() {
       <Navbar /> 
       <Hero />
       <main>
-        <About />
+        <NextGames 
+          events={events}
+          loading={loading}
+          error={error}
+        />
+        <Gallery />
         <Features />
+        <Extras />
         
         <Events 
           events={events} 
           loading={loading} 
           error={error} 
         />
-        <Gallery />
-        <ContactForm />
       </main>
      <Footer />
     </div>

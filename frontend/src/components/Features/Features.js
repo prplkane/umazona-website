@@ -1,37 +1,71 @@
 import React from 'react';
 import './Features.css';
 
-// An array to hold the feature data. Easy to add/remove items.
 const featuresData = [
   {
-    icon: '🕒', // You can replace this with an icon image later
+    icon: '🎉',
+    label: 'Private Nights',
     title: 'Пора по-серьезному!',
-    description: 'Пора по-серьезному! заказать праздник, чтобы он был, как до Гостеприимства.',
+    description:
+      'Закажите интеллектуальный вечер, который запомнится гостям надолго. Индивидуальный сценарий, ведущий и весь реквизит — мы всё привезём.',
+    cta: 'Запросить праздник',
+    href: '#contact',
+    accent: '#5be4ff',
   },
   {
-    icon: '👥',
+    icon: '🧩',
+    label: 'Family Friendly',
     title: 'Вам не с кем оставить детей?',
-    description: 'За ними присмотрит игровая комната (дети от 1,5 лет).',
+    description:
+      'Игровая комната с няней присмотрит за малышами (от 1,5 лет), пока вы погружаетесь в квиз. Забота о детях — на нас.',
+    cta: 'Узнать про комнату',
+    href: '#contact',
+    accent: '#8effa1',
   },
   {
     icon: '🏆',
+    label: 'Champions League',
     title: 'Quote',
-    description: 'A third feature or quote can go here.',
+    description:
+      '«После Umazonа мы стали одной командой и на работе, и в жизни». — отзыв постоянных игроков. Присоединяйтесь к сообществу победителей.',
+    cta: 'Читать отзывы',
+    href: '#gallery',
+    accent: '#ffd76f',
   },
 ];
 
 function Features() {
   return (
     <section id="features" className="features-section">
-      <div className="features-container">
-        {/* We map over the array to create the cards dynamically */}
-        {featuresData.map((feature, index) => (
-          <div className="feature-card" key={index}>
-            <div className="feature-icon">{feature.icon}</div>
-            <h3 className="feature-title">{feature.title}</h3>
-            <p className="feature-description">{feature.description}</p>
-          </div>
-        ))}
+      <div className="features-wrapper">
+        <div className="features-header">
+          <span className="features-eyebrow">Почему именно Umazonа</span>
+          <h2>Больше, чем просто квиз</h2>
+          <p>
+            От семейных праздников до корпоративных чемпионатов — мы создаём атмосферу, в
+            которой хочется играть, делиться эмоциями и возвращаться снова.
+          </p>
+        </div>
+
+        <div className="features-grid">
+          {featuresData.map((feature) => (
+            <article
+              key={feature.title}
+              className="feature-card"
+              style={{ '--feature-accent': feature.accent }}
+            >
+              <div className="feature-icon" aria-hidden="true">
+                {feature.icon}
+              </div>
+              <span className="feature-label">{feature.label}</span>
+              <h3 className="feature-title">{feature.title}</h3>
+              <p className="feature-description">{feature.description}</p>
+              <a className="feature-link" href={feature.href}>
+                {feature.cta}
+              </a>
+            </article>
+          ))}
+        </div>
       </div>
     </section>
   );

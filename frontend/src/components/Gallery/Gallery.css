@@ -1,25 +1,197 @@
-.gallery-grid {
-  /* This creates a responsive grid */
-  display: grid;
-  
-  /* This is the magic part:
-    - It tries to fit columns that are at least 300px wide.
-    - 'auto-fit' tells it to create as many columns as will fit.
-    - '1fr' means each column will be the same width.
-  */
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  
-  /* Adds spacing between the images */
-  gap: 20px;
+.gallery-section {
+  position: relative;
+  padding: clamp(70px, 12vw, 120px) clamp(20px, 6vw, 60px);
+  background: linear-gradient(180deg, rgba(2, 16, 54, 0.65) 0%, rgba(1, 8, 30, 0.85) 100%);
+  border-radius: 48px 48px 0 0;
+  margin-top: -36px;
+  overflow: hidden;
 }
 
-.gallery-item img {
-  /* Make the image fill its container */
+.gallery-intro {
+  max-width: 680px;
+  margin-bottom: clamp(32px, 6vw, 50px);
+}
+
+.gallery-eyebrow {
+  font-size: 0.85rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(164, 210, 255, 0.72);
+  margin-bottom: 14px;
+}
+
+.gallery-section h2 {
+  font-size: clamp(2.1rem, 4vw, 3rem);
+  margin: 0 0 18px;
+  color: #f4f7ff;
+}
+
+.gallery-section p {
+  margin: 0;
+  font-size: 1rem;
+  color: rgba(206, 224, 255, 0.8);
+  line-height: 1.7;
+}
+
+.album-carousel {
+  position: relative;
+  display: grid;
+  grid-auto-flow: column;
+  gap: clamp(20px, 3vw, 32px);
+  overflow-x: auto;
+  padding-bottom: 16px;
+  scroll-snap-type: x mandatory;
+}
+
+.album-carousel::-webkit-scrollbar {
+  height: 6px;
+}
+
+.album-carousel::-webkit-scrollbar-thumb {
+  background: rgba(120, 180, 255, 0.4);
+  border-radius: 999px;
+}
+
+.album-card {
+  position: relative;
+  width: clamp(240px, 26vw, 320px);
+  border-radius: 32px;
+  background: rgba(6, 19, 54, 0.72);
+  border: 1px solid rgba(138, 182, 255, 0.2);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  scroll-snap-align: center;
+  box-shadow: 0 25px 60px rgba(3, 12, 36, 0.42);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.album-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 32px 70px rgba(8, 27, 58, 0.5);
+}
+
+.album-cover {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.album-cover img {
   width: 100%;
-  height: auto;
-  
-  /* Add a subtle border and rounded corners */
-  border-radius: 8px;
-  border: 3px solid #1565c0; /* Matches our theme */
-  display: block; /* Fixes any weird alignment issues */
+  height: 100%;
+  object-fit: cover;
+}
+
+.album-cover-glow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(5, 15, 42, 0.6));
+  mix-blend-mode: screen;
+}
+
+.album-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px clamp(16px, 2vw, 24px) 24px;
+}
+
+.album-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: rgba(178, 210, 255, 0.78);
+}
+
+.album-header .album-count {
+  color: rgba(143, 229, 255, 0.85);
+}
+
+.album-meta h3 {
+  margin: 0;
+  font-size: clamp(1.05rem, 2.4vw, 1.35rem);
+  color: #f6f8ff;
+  line-height: 1.4;
+}
+
+.album-button {
+  align-self: flex-start;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: none;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  background: rgba(146, 244, 255, 0.18);
+  color: #9ee8ff;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.album-button:hover {
+  background: rgba(146, 244, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+.album-card--upload {
+  border: 1px dashed rgba(138, 182, 255, 0.45);
+  background: rgba(5, 20, 64, 0.5);
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 14px;
+  padding: clamp(26px, 4vw, 32px);
+}
+
+.upload-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  background: rgba(160, 235, 255, 0.18);
+  border: 1px solid rgba(160, 235, 255, 0.35);
+  color: rgba(160, 235, 255, 0.9);
+  font-size: 1.5rem;
+  display: grid;
+  place-items: center;
+}
+
+.upload-inner h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #f5f7ff;
+}
+
+.upload-inner p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: rgba(200, 220, 255, 0.75);
+}
+
+.upload-button {
+  margin-top: 4px;
+  padding: 10px 20px;
+  background: linear-gradient(120deg, #8fe8ff, #70d6ff);
+  color: #06204f;
+}
+
+.upload-button:hover {
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .album-carousel {
+    grid-auto-flow: row;
+    overflow-x: hidden;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
 }

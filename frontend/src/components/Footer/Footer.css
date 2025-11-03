@@ -1,52 +1,167 @@
 .site-footer {
-  /* This creates the top border from your prototype */
-  border-top: 2px solid #1565c0;
-  background-color: #0d47a1; /* Dark blue background */
-  color: #bbdefb; /* Light blue text */
-  padding: 50px 20px;
-  font-size: 0.9rem;
+  position: relative;
+  padding: clamp(70px, 12vw, 110px) 24px clamp(30px, 6vw, 50px);
+  background: linear-gradient(180deg, #04123b 0%, #020b26 65%, #010619 100%);
+  color: rgba(222, 234, 255, 0.84);
+  overflow: hidden;
 }
 
-.footer-container {
-  max-width: 1200px;
-  margin: 0 auto;
+.footer-sheen {
+  position: absolute;
+  inset: -40% -20% auto;
+  height: 70%;
+  background: radial-gradient(circle at 20% 10%, rgba(120, 210, 255, 0.15), transparent 60%),
+    radial-gradient(circle at 80% 0%, rgba(104, 116, 255, 0.12), transparent 55%);
+  pointer-events: none;
 }
 
-.footer-links {
+.footer-content {
+  position: relative;
+  max-width: 1180px;
+  margin: 0 auto clamp(36px, 7vw, 60px);
+  display: grid;
+  gap: clamp(36px, 6vw, 60px);
+  grid-template-columns: minmax(240px, 1.3fr) minmax(320px, 2fr);
+}
+
+.footer-brand {
   display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap; /* Allows columns to wrap on small screens */
-  gap: 30px; /* Space between columns */
-  margin-bottom: 30px;
+  flex-direction: column;
+  gap: 18px;
 }
 
-.footer-column {
-  flex: 1; /* Each column tries to take equal space */
-  min-width: 200px; /* Prevents columns from getting too small */
-}
-
-.footer-column h4 {
-  color: #fff; /* White heading */
-  font-size: 1.2rem;
-  margin-bottom: 15px;
-}
-
-.footer-column p,
-.footer-column a {
-  color: #bbdefb;
+.footer-logo {
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 800;
   text-decoration: none;
-  display: block; /* Makes links stack vertically */
-  margin-bottom: 10px;
-  transition: color 0.2s;
+  color: #f6f8ff;
+  letter-spacing: 0.12em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.footer-column a:hover {
-  color: #fff; /* White on hover */
+.footer-logo-accent {
+  color: #8fe8ff;
+}
+
+.footer-tagline {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: rgba(207, 222, 255, 0.8);
+  max-width: 320px;
 }
 
 .footer-social {
-  text-align: center;
-  border-top: 1px solid #1565c0; /* Faint line above the copyright */
-  padding-top: 30px;
-  color: #8aacc8; /* Muted text color */
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.footer-social-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(146, 244, 255, 0.15);
+  color: #cfe9ff;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  border: 1px solid rgba(146, 244, 255, 0.3);
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.footer-social-link:hover,
+.footer-social-link:focus-visible {
+  transform: translateY(-2px);
+  background: rgba(146, 244, 255, 0.35);
+  color: #061947;
+}
+
+.footer-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: clamp(20px, 4vw, 32px);
+}
+
+.footer-column h4 {
+  margin: 0 0 14px;
+  font-size: 1.05rem;
+  color: #f6f8ff;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.footer-column a,
+.footer-column p {
+  display: block;
+  margin: 0 0 10px;
+  color: rgba(210, 225, 255, 0.82);
+  text-decoration: none;
+  font-size: 0.94rem;
+  transition: color 0.2s ease;
+}
+
+.footer-column a:hover,
+.footer-column a:focus-visible {
+  color: #ffffff;
+}
+
+.footer-bottom {
+  position: relative;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding-top: clamp(20px, 4vw, 30px);
+  border-top: 1px solid rgba(120, 176, 255, 0.18);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: rgba(200, 218, 255, 0.65);
+  font-size: 0.85rem;
+}
+
+.footer-bottom p {
+  margin: 0;
+}
+
+.footer-bottom-links {
+  display: flex;
+  gap: 16px;
+}
+
+.footer-bottom-links a {
+  color: rgba(200, 218, 255, 0.75);
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.2s ease;
+}
+
+.footer-bottom-links a:hover,
+.footer-bottom-links a:focus-visible {
+  color: #ffffff;
+}
+
+@media (max-width: 960px) {
+  .footer-content {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .footer-brand {
+    align-items: center;
+  }
+
+  .footer-tagline {
+    max-width: none;
+  }
+
+  .footer-social {
+    justify-content: center;
+  }
 }

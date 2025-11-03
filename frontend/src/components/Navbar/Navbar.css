@@ -1,17 +1,23 @@
+
+:root {
+  --navbar-height: 80px;
+}
+
 .navbar {
-  /* This makes the navbar stick to the top */
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 999; /* Stays on top of other content */
-  
-  /* Styling to match your prototype */
-  background-color: #0d47a1; /* Dark blue */
-  border-bottom: 2px solid #1565c0; /* Lighter blue border */
-  height: 80px;
+  left: 0;
+  right: 0;
+  height: var(--navbar-height);
+  z-index: 1000;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.2rem;
+  padding: 0 16px;
+  background: linear-gradient(135deg, rgba(8, 35, 100, 0.95), rgba(9, 55, 140, 0.95));
+  border-bottom: 1px solid rgba(120, 176, 255, 0.35);
+  box-shadow: 0 10px 30px rgba(3, 12, 38, 0.45);
+  backdrop-filter: blur(12px);
 }
 
 .navbar-container {
@@ -19,8 +25,8 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  max-width: 1200px;
-  padding: 0 20px; /* Matches the padding in App.js */
+  max-width: 1180px;
+  gap: clamp(12px, 4vw, 36px);
 }
 
 .navbar-logo {
@@ -39,35 +45,105 @@
 }
 
 .nav-item {
-  height: 80px;
+  height: var(--navbar-height);
 }
 
 .nav-link {
-  color: #fff;
+  position: relative;
+  color: rgba(229, 238, 255, 0.9);
   text-decoration: none;
-  padding: 0 1rem;
+  padding: 0 clamp(10px, 2vw, 18px);
   height: 100%;
   display: flex;
   align-items: center;
-  transition: all 0.2s ease;
+  transition: color 0.2s ease;
+  letter-spacing: 0.04em;
 }
 
-.nav-link:hover {
-  color: #bbdefb; /* Light blue on hover */
-  border-bottom: 4px solid #bbdefb;
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: clamp(6px, 1vw, 12px);
+  right: clamp(6px, 1vw, 12px);
+  bottom: clamp(18px, 2.2vw, 24px);
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(130, 208, 255, 0.9), rgba(168, 182, 255, 0.9));
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.25s ease;
 }
 
-/* Special style for the contact button */
-.nav-button {
-  background-color: #bbdefb; /* Light blue */
-  color: #0d47a1; /* Dark blue text */
-  padding: 8px 20px;
-  border-radius: 4px;
-  margin-left: 1rem;
+.nav-link:hover,
+.nav-link:focus-visible {
+  color: #ffffff;
 }
 
-.nav-button:hover {
-  background-color: #fff;
-  color: #0d47a1;
-  border-bottom: none;
+.nav-link:hover::after,
+.nav-link:focus-visible::after {
+  transform: scaleX(1);
+}
+
+/* Hero buttons for Gallery and Contact */
+.nav-link--accent {
+  position: relative;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: linear-gradient(120deg, rgba(146, 244, 255, 0.85), rgba(106, 171, 255, 0.85));
+  color: #051740;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  overflow: hidden;
+  box-shadow: 0 10px 22px rgba(76, 172, 255, 0.26);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-left: clamp(8px, 2vw, 18px);
+}
+
+.nav-link--accent::after {
+  display: none;
+}
+
+.nav-link--accent::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.65), transparent 60%);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.nav-link--accent:hover,
+.nav-link--accent:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 26px rgba(76, 172, 255, 0.32);
+}
+
+@media (max-width: 720px) {
+  :root {
+    --navbar-height: 72px;
+  }
+
+  .navbar-container {
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .nav-menu {
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    height: auto;
+  }
+
+  .nav-item {
+    height: auto;
+  }
+
+  .nav-link {
+    padding: 6px 12px;
+  }
+
+  .nav-button {
+    margin-left: 0;
+  }
 }

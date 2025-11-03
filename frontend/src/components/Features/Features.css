@@ -1,45 +1,150 @@
 .features-section {
-  /* This section in the prototype had a different background */
-  background-color: #1565c0; /* Lighter blue */
+  position: relative;
+  padding: clamp(80px, 12vw, 120px) clamp(20px, 6vw, 60px) clamp(70px, 10vw, 110px);
+  background: rgba(1, 23, 66, 0.55);
+  backdrop-filter: blur(16px);
 }
 
-.features-container {
+.features-wrapper {
   max-width: 1200px;
   margin: 0 auto;
   display: flex;
-  justify-content: center;
-  gap: 30px; /* Space between the cards */
-  flex-wrap: wrap; /* Allows cards to stack on small screens */
+  flex-direction: column;
+  gap: clamp(36px, 6vw, 60px);
+}
+
+.features-header {
+  max-width: 720px;
+  text-align: left;
+}
+
+.features-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(166, 208, 255, 0.8);
+  margin-bottom: 14px;
+}
+
+.features-header h2 {
+  margin: 0 0 18px;
+  font-size: clamp(2.1rem, 4vw, 2.8rem);
+  color: #f4f7ff;
+}
+
+.features-header p {
+  margin: 0;
+  font-size: clamp(1rem, 2.6vw, 1.2rem);
+  color: rgba(206, 222, 255, 0.82);
+  line-height: 1.6;
+}
+
+.features-grid {
+  display: grid;
+  gap: clamp(20px, 4vw, 32px);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
 .feature-card {
-  /* This creates the card from your prototype */
-  background-color: #0d47a1; /* Dark blue */
-  border-radius: 8px;
-  padding: 30px;
-  
-  /* Sizing for the 3-column layout */
-  flex: 1; /* Each card tries to take equal space */
-  min-width: 280px; /* Each card must be at least 280px wide */
-  max-width: 350px; /* Each card won't get larger than 350px */
-  
-  text-align: center;
-  border: 2px solid #bbdefb; /* Light blue border */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: clamp(26px, 4vw, 32px);
+  background: rgba(4, 18, 58, 0.78);
+  border-radius: 28px;
+  border: 1px solid rgba(142, 196, 255, 0.2);
+  box-shadow: 0 28px 60px rgba(4, 17, 44, 0.45);
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.feature-card::before {
+  content: "";
+  position: absolute;
+  inset: -30% -15% auto;
+  height: 65%;
+  background: linear-gradient(135deg, var(--feature-accent), rgba(255, 255, 255, 0));
+  opacity: 0.15;
+  transform: rotate(-7deg);
+  pointer-events: none;
+}
+
+.feature-card:hover {
+  transform: translateY(-8px) scale(1.01);
+  border-color: rgba(142, 196, 255, 0.45);
+  box-shadow: 0 38px 80px rgba(6, 24, 66, 0.55);
 }
 
 .feature-icon {
-  font-size: 3rem;
-  margin-bottom: 15px;
+  width: 68px;
+  height: 68px;
+  border-radius: 22px;
+  display: grid;
+  place-items: center;
+  font-size: 2.2rem;
+  background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0));
+  color: #0d2a5a;
+  align-self: flex-start;
+  box-shadow: 0 12px 24px rgba(12, 70, 138, 0.35);
+}
+
+.feature-label {
+  font-size: 0.85rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(180, 214, 255, 0.7);
+  margin-top: 6px;
 }
 
 .feature-title {
-  font-size: 1.5rem;
-  color: #fff;
-  margin-bottom: 10px;
+  margin: 0;
+  font-size: clamp(1.4rem, 3vw, 1.8rem);
+  color: #f8fbff;
 }
 
 .feature-description {
+  margin: 0;
   font-size: 1rem;
-  color: #bbdefb;
-  line-height: 1.5;
+  line-height: 1.7;
+  color: rgba(207, 223, 255, 0.85);
+}
+
+.feature-link {
+  margin-top: auto;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--feature-accent);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.feature-link:hover {
+  color: #ecfcff;
+}
+
+@media (max-width: 720px) {
+  .features-header {
+    text-align: center;
+  }
+
+  .feature-card {
+    align-items: center;
+    text-align: center;
+  }
+
+  .feature-icon {
+    align-self: center;
+  }
+
+  .feature-label {
+    margin-top: 10px;
+  }
+
+  .feature-link {
+    margin-top: 12px;
+  }
 }

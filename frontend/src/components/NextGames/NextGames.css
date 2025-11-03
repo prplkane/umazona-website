@@ -1,0 +1,198 @@
+.next-games-section {
+  padding: 100px clamp(20px, 6vw, 60px) 80px;
+  background: rgba(0, 33, 91, 0.65);
+  backdrop-filter: blur(20px);
+  border-radius: 48px 48px 0 0;
+  margin-top: -48px;
+  position: relative;
+  overflow: hidden;
+}
+
+.next-games-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 10% 10%, rgba(118, 213, 255, 0.25), transparent 55%),
+    radial-gradient(circle at 90% 15%, rgba(104, 139, 255, 0.25), transparent 60%);
+  pointer-events: none;
+}
+
+.next-games-header {
+  position: relative;
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 56px;
+}
+
+.section-eyebrow {
+  font-size: 0.85rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(173, 210, 255, 0.8);
+  margin-bottom: 18px;
+}
+
+.next-games-header h2 {
+  font-size: clamp(2.2rem, 4vw, 3rem);
+  margin: 0 0 16px;
+  color: #f5f9ff;
+}
+
+.section-lead {
+  font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+  color: rgba(208, 224, 255, 0.85);
+  margin: 0;
+}
+
+.next-games-grid {
+  position: relative;
+  display: grid;
+  gap: clamp(20px, 3vw, 36px);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.next-games-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: clamp(24px, 3vw, 32px);
+  border-radius: 28px;
+  background: rgba(8, 25, 70, 0.55);
+  border: 1px solid rgba(103, 162, 255, 0.18);
+  box-shadow: 0 25px 60px rgba(12, 28, 80, 0.35);
+  color: #f1f6ff;
+  text-decoration: none;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.next-games-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(143, 234, 255, 0.4);
+  box-shadow: 0 32px 70px rgba(13, 38, 104, 0.45);
+}
+
+.schedule-card {
+  background: linear-gradient(135deg, rgba(102, 194, 255, 0.25), rgba(49, 118, 255, 0.2));
+}
+
+.next-card {
+  background: linear-gradient(150deg, rgba(24, 72, 176, 0.75), rgba(9, 35, 96, 0.65));
+}
+
+.featured-card {
+  background: linear-gradient(135deg, rgba(25, 94, 117, 0.7), rgba(7, 28, 63, 0.7));
+}
+
+.card-eyebrow,
+.featured-eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(165, 214, 255, 0.75);
+}
+
+.next-card .card-eyebrow {
+  color: rgba(143, 234, 255, 0.95);
+}
+
+.next-games-card h3,
+.event-title {
+  margin: 0;
+  font-size: clamp(1.35rem, 3vw, 1.75rem);
+  color: #f8fbff;
+}
+
+.event-meta {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.event-meta li {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  font-size: 0.95rem;
+}
+
+.meta-label {
+  font-weight: 600;
+  color: rgba(179, 212, 255, 0.75);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.meta-value {
+  color: #ffffff;
+  font-weight: 500;
+  text-align: right;
+}
+
+.card-cta {
+  margin-top: auto;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #8cf2ff;
+  text-decoration: none;
+}
+
+.card-cta:hover {
+  text-decoration: underline;
+}
+
+.next-games-status {
+  margin: 0;
+  font-size: 1rem;
+  color: rgba(209, 224, 255, 0.7);
+}
+
+.next-games-status.error {
+  color: #ff9c9c;
+}
+
+@media (min-width: 900px) {
+  .next-games-grid {
+    grid-template-columns: 1.2fr 1fr 1fr;
+    grid-template-areas:
+      'schedule next featured';
+  }
+
+  .schedule-card {
+    grid-area: schedule;
+  }
+
+  .next-card {
+    grid-area: next;
+  }
+
+  .featured-card {
+    grid-area: featured;
+  }
+}
+
+@media (max-width: 720px) {
+  .next-games-section {
+    padding: 80px 16px 60px;
+    border-radius: 32px 32px 0 0;
+    margin-top: -36px;
+  }
+
+  .next-games-card {
+    padding: 24px;
+  }
+
+  .event-meta li {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .meta-value {
+    text-align: left;
+  }
+}
+
