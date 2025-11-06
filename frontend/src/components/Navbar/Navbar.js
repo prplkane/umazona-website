@@ -1,39 +1,45 @@
 import React from 'react';
+// 1. IMPORT from the new library instead of 'react-router-dom'
+import { HashLink as Link } from 'react-router-hash-link'; 
 import './Navbar.css';
 
 function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <a href="#home" className="navbar-logo">
-          {/* We can put the logo text here, or an <img> tag */}
+        {/* 2. This <Link> should point to the root page */}
+        <Link to="/" className="navbar-logo">
           UMAZONA
-        </a>
+        </Link>
         <ul className="nav-menu">
           <li className="nav-item">
-            <a href="#home" className="nav-link">
+            {/* This still works perfectly */}
+            <Link to="/" className="nav-link">
               Home
-            </a>
+            </Link>
           </li>
           <li className="nav-item">
-            <a href="#about" className="nav-link">
+            {/* 3. This <Link> will now work! */}
+            <Link to="/#features" className="nav-link">
               About
-            </a>
+            </Link>
           </li>
           <li className="nav-item">
-            <a href="#events" className="nav-link">
+            {/* 4. This <Link> will also work! */}
+            <Link to="/#events" className="nav-link">
               Events
-            </a>
+            </Link>
           </li>
           <li className="nav-item">
-            <a href="#gallery" className="nav-link nav-link--accent">
+            <Link to="/#gallery" className="nav-link nav-link--accent">
               Gallery
-            </a>
+            </Link>
           </li>
           <li className="nav-item">
-            <a href="#contact" className="nav-link nav-link--accent">
+            {/* 5. This <Link> to a different page will also still work! */}
+            <Link to="/members" className="nav-link nav-link--accent">
               Contact Us
-            </a>
+            </Link>
           </li>
         </ul>
       </div>

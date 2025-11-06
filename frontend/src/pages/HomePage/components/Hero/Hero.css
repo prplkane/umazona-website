@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 140px 20px 120px;
+  padding: 100px 20px 240px;
   min-height: 70vh;
   color: #f6fbff;
   background: radial-gradient(circle at 15% 20%, rgba(80, 180, 255, 0.35), transparent 55%),
@@ -25,16 +25,31 @@
 .hero-content {
   position: relative;
   z-index: 1;
-  max-width: 640px;
+  /* === CHANGED === */
+  /* Allow the container to be wider, so the logo can be bigger */
+  max-width: 800px; 
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  /* === CHANGED === */
+  /* Increase the main gap for more separation */
+  gap: 32px; 
   animation: heroFade 0.8s ease-out forwards;
 }
 
+.hero-text-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
 .hero-logo {
-  width: min(320px, 70vw);
+  width: 100%;
+  /* === CHANGED === */
+  /* Make the logo significantly larger */
+  max-width: 600px; 
+  min-width: 300px;
   height: auto;
   filter: drop-shadow(0 18px 40px rgba(6, 31, 94, 0.45));
   transform: translateY(0);
@@ -47,6 +62,10 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #f2f6ff;
+  margin: 0;
+  /* === CHANGED === */
+  /* This is the key: prevents the text from wrapping */
+  white-space: nowrap; 
 }
 
 .hero-subheading {
@@ -54,12 +73,16 @@
   font-weight: 600;
   color: #a8cbff;
   margin: 0;
+  /* === CHANGED === */
+  white-space: nowrap;
 }
 
 .hero-caption {
   font-size: clamp(1rem, 2.5vw, 1.25rem);
   color: rgba(219, 229, 255, 0.85);
-  margin-bottom: 20px;
+  margin: 0;
+  /* === CHANGED === */
+  white-space: nowrap;
 }
 
 .hero-button {
@@ -67,7 +90,6 @@
   align-items: center;
   justify-content: center;
   padding: 14px 34px;
-  margin-top: 6px;
   border-radius: 999px;
   font-weight: 600;
   font-size: 1.05rem;

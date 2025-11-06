@@ -1,0 +1,150 @@
+.members-section {
+  position: relative;
+  padding: 0px 20px 100px;
+  min-height: 80vh;
+  /* Uses the modern gradient background */
+  background: radial-gradient(circle at 15% 20%, rgba(80, 180, 255, 0.35), transparent 55%),
+    radial-gradient(circle at 85% 25%, rgba(110, 90, 255, 0.2), transparent 60%),
+    linear-gradient(180deg, #002c83 0%, #011f57 45%, #031a44 100%);
+  overflow: hidden;
+}
+
+/* This adds the "frosted glass" lighting effect */
+.members-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.12), transparent 55%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.members-container {
+  max-width: 1000px; /* Widen the container */
+  margin: 0 auto;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.members-container h2 {
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
+  color: #f2f6ff;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.members-container p {
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  color: #a8cbff;
+  margin-bottom: 40px;
+}
+
+.members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* This is the modern "frosted glass" card */
+.member-bio-card {
+  display: flex;
+  flex-wrap: wrap; 
+  gap: 30px;
+  /* The "glass" effect */
+  background-color: rgba(6, 31, 94, 0.45);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  padding: 30px;
+  border: 1px solid rgba(137, 248, 255, 0.2);
+  box-shadow: 0 16px 35px rgba(0, 0, 0, 0.3);
+  text-align: left;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.member-bio-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 22px 45px rgba(0, 0, 0, 0.4);
+  border-color: rgba(137, 248, 255, 0.5);
+}
+
+/* Left column (info) */
+.member-info {
+  flex: 2; 
+  min-width: 300px;
+  color: #f2f6ff;
+}
+
+/* Right column (photo) */
+.member-photo {
+  flex: 1; 
+  min-width: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.member-image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.2));
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.member-name-header {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 24px;
+  border-bottom: 2px solid #a8cbff;
+  padding-bottom: 10px;
+}
+
+.info-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #a8cbff;
+  margin-top: 20px;
+  margin-bottom: 15px;
+}
+
+.about-me-list,
+.life-facts-list {
+  padding-left: 20px;
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.about-me-list {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.about-me-list li {
+  margin-bottom: 10px;
+}
+
+.life-facts-list li {
+  margin-bottom: 8px;
+}
+
+.member-contact-info {
+  margin-top: 30px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 15px;
+  border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+  .member-bio-card {
+    /* Stack info on top of photo */
+    flex-direction: column-reverse;
+  }
+}

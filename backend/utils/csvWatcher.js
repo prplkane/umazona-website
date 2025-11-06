@@ -93,7 +93,7 @@ function startWatcher() {
   } else {
     console.log(`[Watcher] No 'events.csv' found on startup. Waiting for new file.`);
   }
-  
+
   console.log(`[Watcher] Monitoring for ${targetFile} in: ${watchFolder}`);
 
   const watcher = chokidar.watch(targetFilePath, {
@@ -106,6 +106,12 @@ function startWatcher() {
     console.log(`[Watcher] 'add' event detected for: ${path}`);
     // Add a small delay to ensure the file is fully written
     setTimeout(() => processCSV(path), 1000); 
+  });
+
+  watcher.on('change', (path) => {
+    console.log(`[Watcher] 'change' event detected for: ${path}`);
+    // Also process the file if it's saved over (changed)
+    setTimeout(() => processCSV(path), 1000);
   });
 
   watcher.on('error', (err) => {
