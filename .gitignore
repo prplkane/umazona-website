@@ -103,6 +103,7 @@ coverage-final.json
 # ------------------------
 # Safety: keep lockfiles and example envs tracked
 # ------------------------
+!/.env
 !/.env.example
 # Do NOT ignore lockfiles — keep them in the repo to ensure reproducible installs
 !package-lock.json
