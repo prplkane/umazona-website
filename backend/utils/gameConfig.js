@@ -1,14 +1,5 @@
-/**
- * Game Configuration - Auto-Discovery Mode
- * 
- * This system automatically discovers ALL photo folders from Google Drive.
- * No manual configuration needed - just sync folders with Google Drive
- * and they'll be automatically available via the API.
- */
-
 const { discoverGameFolders } = require('./googleDriveService');
 
-// Runtime cache for discovered mappings
 let discoveredGameMap = null;
 let discoveryAttempted = false;
 
