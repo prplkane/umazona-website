@@ -9,13 +9,12 @@
 .extras-wrapper {
   max-width: 1200px;
   margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: clamp(40px, 7vw, 64px);
+  display: grid;
+  gap: clamp(36px, 6vw, 60px);
 }
 
 .extras-header {
-  max-width: 700px;
+  max-width: 720px;
 }
 
 .extras-eyebrow {
@@ -52,8 +51,9 @@
 
 .extras-grid {
   display: grid;
-  gap: clamp(22px, 4vw, 40px);
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: clamp(22px, 3vw, 36px);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  align-items: stretch;
 }
 
 .extras-card {
@@ -61,15 +61,16 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  padding: clamp(28px, 4vw, 40px);
+  gap: clamp(16px, 3vw, 22px);
+  padding: clamp(26px, 3.5vw, 36px);
   border-radius: 34px;
   background: rgba(5, 22, 70, 0.78);
   border: 1px solid rgba(124, 191, 255, 0.2);
-  box-shadow: 0 28px 70px rgba(4, 20, 58, 0.45);
+  box-shadow: 0 24px 60px rgba(4, 20, 58, 0.42);
   text-decoration: none;
   color: #f4f7ff;
   overflow: hidden;
+  min-height: clamp(240px, 26vw, 320px);
   transition: transform 0.25s ease, box-shadow 0.3s ease, border-color 0.25s ease;
 }
 
@@ -177,6 +178,30 @@
 
 .extras-card:hover .extras-link {
   text-decoration: underline;
+}
+
+.extras-gallery-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: clamp(18px, 3vw, 32px);
+  align-items: stretch;
+}
+
+.extras-gallery-panel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 34px;
+  min-height: clamp(220px, 30vw, 400px);
+  background: rgba(5, 18, 52, 0.58);
+  border: 1px solid rgba(124, 191, 255, 0.22);
+  box-shadow: 0 28px 80px rgba(4, 20, 58, 0.5);
+}
+
+.extras-gallery-panel img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 /* Mini quiz */
@@ -336,14 +361,19 @@
     padding: 70px 18px;
   }
 
+  .extras-wrapper {
+    gap: clamp(28px, 7vw, 44px);
+  }
+
   .extras-header {
     text-align: center;
     margin: 0 auto;
   }
 
   .extras-card {
-    padding: 26px;
+    padding: clamp(24px, 6vw, 30px);
     text-align: center;
+    min-height: auto;
   }
 
   .extras-card-header {
@@ -358,6 +388,14 @@
 
   .extras-card--interactive {
     text-align: center;
+  }
+
+  .extras-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .extras-gallery-row {
+    grid-template-columns: 1fr;
   }
 
   .quiz-footer {
