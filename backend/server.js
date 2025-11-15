@@ -1,4 +1,5 @@
 require('dotenv').config();
+const { google } = require('googleapis');
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
@@ -8,11 +9,27 @@ const fs = require('fs');
 const app = express();
 const db = require('./database.js');
 const { startWatcher } = require('./utils/csvWatcher.js');
+
 const PORT = process.env.PORT || 3000;
 const ADMIN_TOKEN = process.env.ADMIN_API_TOKEN;
 
+const oauth2Client = new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.GOOGLE_REDIRECT_URI
+  );
+  
+  if (process.env.GOOGLE_REFRESH_TOKEN) {
+    oauth2Client.setCredentials({
+      refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
+    });
+  }
+  
+  const DRIVE_SCOPES = ['https://www.googleapis.com/auth/drive.readonly'];
+
 const uploadsRoot = path.join(__dirname, 'uploads');
 const themesUploadDir = path.join(uploadsRoot, 'themes');
+
 
 if (!fs.existsSync(themesUploadDir)) {
   fs.mkdirSync(themesUploadDir, { recursive: true });
@@ -54,6 +71,40 @@ const verifyAdmin = (req, res, next) => {
 app.get('/', (req, res) => {
   res.send('Hello from the backend!');
 });
+
+app.get('/auth/google', (req, res) => {
+    const url = oauth2Client.generateAuthUrl({
+      access_type: 'offline',   // important: gives refresh_token
+      scope: DRIVE_SCOPES,
+      prompt: 'consent',        // forces consent so we actually get a refresh_token
+    });
+  
+    res.redirect(url);
+  });
+
+  app.get('/oauth2callback', async (req, res) => {
+    const code = req.query.code;
+    if (!code) {
+      return res.status(400).send('Missing "code" parameter.');
+    }
+  
+    try {
+      const { tokens } = await oauth2Client.getToken(code);
+      // tokens will contain access_token, refresh_token, expiry_date, etc.
+      console.log('Google OAuth tokens:', tokens);
+  
+      // You can store it anywhere secure. For quick dev, write to a local file:
+      fs.writeFileSync(
+        path.join(__dirname, 'google-tokens.json'),
+        JSON.stringify(tokens, null, 2)
+      );
+  
+      res.send('Authorization successful. You can close this window now.');
+    } catch (err) {
+      console.error('Error exchanging code for tokens:', err);
+      res.status(500).send('Failed to get tokens. Check server logs.');
+    }
+  });
 
 app.post('/api/admin/upload-theme', verifyAdmin, upload.single('theme'), (req, res) => {
   if (!req.file) {
