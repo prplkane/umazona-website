@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './Members.css';
 
 // Our static member data
@@ -76,13 +76,9 @@ function shuffleArray(array) {
 }
 
 function Members() {
-  // State to hold the shuffled list
-  const [shuffledMembers, setShuffledMembers] = useState([]);
-
-  // useEffect hook to shuffle the list ONCE on component load
-  useEffect(() => {
-    setShuffledMembers(shuffleArray(memberData));
-  }, []); // The empty array [] means "run this only once"
+  // Initialize shuffled list synchronously so the layout renders immediately
+  // and we avoid a flash when the component first mounts.
+  const [shuffledMembers] = useState(() => shuffleArray(memberData));
 
  return (
     <section id="members" className="members-section">

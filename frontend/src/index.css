@@ -5,8 +5,12 @@
   box-sizing: border-box;
 }
 
-/* 1. Global Smooth Scroll */
+/* 1. Global Smooth Scroll (disabled on initial load to prevent unwanted scrolls) */
 html {
+  scroll-behavior: auto;
+}
+
+html.smooth-scroll {
   scroll-behavior: smooth;
 }
 
