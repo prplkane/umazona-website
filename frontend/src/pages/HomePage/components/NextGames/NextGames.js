@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import './NextGames.css';
 
 function NextGames({ events, loading, error }) {
+  const featuredFallbackImage = `${process.env.PUBLIC_URL}/images/DSC_1609.JPG`;
   const sortedEvents = useMemo(() => {
     if (!Array.isArray(events)) {
       return [];
@@ -16,6 +17,8 @@ function NextGames({ events, loading, error }) {
 
   const nextEvent = sortedEvents[0];
   const featuredEvent = sortedEvents[1] || sortedEvents[0];
+  const featuredImageSrc =
+    (featuredEvent && (featuredEvent.image_url || featuredEvent.image)) || featuredFallbackImage;
 
   const renderEventSummary = (event) => {
     if (!event) {
@@ -70,56 +73,61 @@ function NextGames({ events, loading, error }) {
     return renderEventSummary(nextEvent);
   };
 
-  const renderFeaturedGame = () => {
+  const renderFeaturedGame = (hasFeaturedEvent) => {
     if (loading) {
-      return <p className="next-games-status">Подбираем лучшие игры...</p>;
+      return null;
     }
 
     if (error) {
-      return <p className="next-games-status error">Ошибка: {error}</p>;
-    }
-
-    if (!featuredEvent) {
-      return (
-        <p className="next-games-status">Следите за обновлениями — новые игры уже скоро!</p>
-      );
+      return null;
     }
 
     return (
-      <>
-        <span className="featured-eyebrow">Game Spotlight</span>
-        {renderEventSummary(featuredEvent)}
-        <a href="#contact" className="card-cta">Записаться →</a>
-      </>
+      <figure className="next-games-photo" aria-hidden={!hasFeaturedEvent}>
+        <img
+          src={hasFeaturedEvent ? featuredImageSrc : featuredFallbackImage}
+          alt="Игроки УмAZона обсуждают ответы за столом"
+          loading="lazy"
+        />
+      </figure>
     );
   };
 
+  const hasFeaturedEvent = Boolean(featuredEvent);
+  const mediaContent = renderFeaturedGame(hasFeaturedEvent);
+
   return (
     <section id="next-games" className="next-games-section">
-      <div className="next-games-header">
-        <p className="section-eyebrow">Upcoming Experiences</p>
-        <h2>Следующая игра уже ждёт тебя</h2>
-        <p className="section-lead">
-          Выбирайте формат: сыграйте с командой, посмотрите архив прошедших игр или забронируйте частное мероприятие.
-        </p>
-      </div>
+      <div className="next-games-content">
+        <div className="next-games-info">
+          <div className="next-games-header">
+            <p className="section-eyebrow">Upcoming Experiences</p>
+            <h2>Следующая игра уже ждёт тебя</h2>
+            <p className="section-lead">
+              Выбирайте формат: сыграйте с командой, посмотрите архив прошедших игр или забронируйте частное мероприятие.
+            </p>
+          </div>
 
-      <div className="next-games-grid">
-        <a href="#events" className="next-games-card schedule-card">
-          <span className="card-eyebrow">Полное расписание</span>
-          <h3>Каждый четверг и субботу — проверяй актуальные даты</h3>
-          <span className="card-cta">Посмотреть все игры →</span>
-        </a>
+          <div className="next-games-grid">
+            <a href="#events" className="next-games-card schedule-card">
+              <span className="card-eyebrow">Полное расписание</span>
+              <h3>Каждый четверг и субботу — проверяй актуальные даты</h3>
+              <span className="card-cta">Посмотреть все игры →</span>
+            </a>
 
-        <div className="next-games-card next-card">
-          <span className="card-eyebrow">Ближайшая игра</span>
-          {renderNextGame()}
-          <a href="#contact" className="card-cta">Забронировать стол →</a>
+            <div className="next-games-card next-card">
+              <span className="card-eyebrow">Ближайшая игра</span>
+              {renderNextGame()}
+              <a href="#contact" className="card-cta">Забронировать стол →</a>
+            </div>
+          </div>
         </div>
 
-        <div className="next-games-card featured-card">
-          {renderFeaturedGame()}
-        </div>
+        {mediaContent && (
+          <aside className="next-games-media">
+            {mediaContent}
+          </aside>
+        )}
       </div>
     </section>
   );
