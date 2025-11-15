@@ -27,7 +27,7 @@ const featuresData = [
     label: 'Champions League',
     title: 'Quote',
     description:
-      '«После Umazonа мы стали одной командой и на работе, и в жизни». — отзыв постоянных игроков. Присоединяйтесь к сообществу победителей.',
+      '«После УмAZона мы стали одной командой и на работе, и в жизни». — отзыв постоянных игроков. Присоединяйтесь к сообществу победителей.',
     cta: 'Читать отзывы',
     href: '#gallery',
     accent: '#ffd76f',
@@ -39,7 +39,7 @@ function Features() {
     <section id="features" className="features-section">
       <div className="features-wrapper">
         <div className="features-header">
-          <span className="features-eyebrow">Почему именно Umazonа</span>
+          <span className="features-eyebrow">Почему именно УмAZона</span>
           <h2>Больше, чем просто квиз</h2>
           <p>
             От семейных праздников до корпоративных чемпионатов — мы создаём атмосферу, в

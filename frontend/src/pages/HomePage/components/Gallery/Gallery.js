@@ -61,7 +61,7 @@ function Gallery() {
     <section id="gallery" className="gallery-section">
       <div className="gallery-intro">
         <p className="gallery-eyebrow">Моменты вечеров</p>
-        <h2>Погрузись в атмосферу Umazonа</h2>
+        <h2>Погрузись в атмосферу УмAZона</h2>
         <p>
           Каждое событие — новая история. Скоро здесь появится живая лента альбомов, которую вы сможете
           пополнять через Cloudinary.

@@ -19,9 +19,9 @@
 
 .next-games-header {
   position: relative;
-  text-align: center;
-  max-width: 720px;
-  margin: 0 auto 56px;
+  text-align: left;
+  max-width: 840px;
+  margin: 0;
 }
 
 .section-eyebrow {
@@ -42,6 +42,18 @@
   font-size: clamp(1.05rem, 2.5vw, 1.25rem);
   color: rgba(208, 224, 255, 0.85);
   margin: 0;
+}
+
+.next-games-content {
+  display: grid;
+  gap: clamp(32px, 4.5vw, 52px);
+  align-items: start;
+}
+
+.next-games-info {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(32px, 5vw, 56px);
 }
 
 .next-games-grid {
@@ -80,8 +92,29 @@
   background: linear-gradient(150deg, rgba(24, 72, 176, 0.75), rgba(9, 35, 96, 0.65));
 }
 
-.featured-card {
-  background: linear-gradient(135deg, rgba(25, 94, 117, 0.7), rgba(7, 28, 63, 0.7));
+.next-games-media {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: clamp(360px, 48vw, 820px);
+  margin: 0;
+}
+
+.next-games-photo {
+  margin: 0;
+  border-radius: 28px;
+  overflow: hidden;
+  line-height: 0;
+  box-shadow: 0 24px 60px rgba(4, 12, 40, 0.3);
+}
+
+.next-games-photo img {
+  width: 100%;
+  height: auto;
+  max-height: clamp(600px, 100vw, 1000px);
+  object-fit: cover;
+  display: block;
 }
 
 .card-eyebrow,
@@ -154,31 +187,35 @@
   color: #ff9c9c;
 }
 
-@media (min-width: 900px) {
+@media (min-width: 960px) {
+  .next-games-content {
+    grid-template-columns: minmax(0, 1fr) minmax(420px, 1.2fr);
+    align-items: center;
+  }
+
+  .next-games-media {
+    justify-self: stretch;
+  }
+
   .next-games-grid {
-    grid-template-columns: 1.2fr 1fr 1fr;
-    grid-template-areas:
-      'schedule next featured';
-  }
-
-  .schedule-card {
-    grid-area: schedule;
-  }
-
-  .next-card {
-    grid-area: next;
-  }
-
-  .featured-card {
-    grid-area: featured;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 720px) {
   .next-games-section {
-    padding: 80px 16px 60px;
+    padding: 64px 16px 48px;
     border-radius: 32px 32px 0 0;
-    margin-top: -36px;
+    margin-top: -48px;
+  }
+
+  .next-games-header {
+    text-align: center;
+    margin: 0 auto;
+  }
+
+  .next-games-info {
+    gap: clamp(24px, 7vw, 36px);
   }
 
   .next-games-card {

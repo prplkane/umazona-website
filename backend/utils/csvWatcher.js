@@ -39,18 +39,22 @@ async function processCSV(filePath) {
 
           // Step B: PREPARE the insert statement
           const stmt = db.prepare(`
-            INSERT INTO events (event_name, event_date, address, details) 
-            VALUES (?, ?, ?, ?)
+            INSERT INTO events (event_name, event_date, start_time, address, details, theme_image_url, notes, status) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
           `);
 
           // Step C: INSERT all new events
           let insertedCount = 0;
           for (const event of events) {
             stmt.run(
-              event.event_name, 
-              event.event_date, 
-              event.address, 
-              event.details,
+              event.event_name || null, 
+              event.event_date || null, 
+              event.start_time || null,
+              event.address || null, 
+              event.details || null,
+              event.theme_image_url || event.registration_link || null,
+              event.notes || null,
+              event.status || 'upcoming',
               (err) => {
                 if (err) console.error('Error inserting row:', event, err.message);
                 else insertedCount++;
