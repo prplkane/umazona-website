@@ -10,6 +10,10 @@ const app = express();
 const db = require('./database.js');
 const { startWatcher } = require('./utils/csvWatcher.js');
 
+// Google Drive and game mapping utilities
+const { getPhotosByGame, discoverGameFolders, getCacheStatus, clearFolderCache } = require('./utils/googleDriveService.js');
+const { initializeGameMapping, getGameFolderId, getAvailableGames, getGameMapping } = require('./utils/gameConfig.js');
+
 const PORT = process.env.PORT || 3000;
 const ADMIN_TOKEN = process.env.ADMIN_API_TOKEN;
 
@@ -17,39 +21,39 @@ const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
     process.env.GOOGLE_REDIRECT_URI
-  );
-  
-  if (process.env.GOOGLE_REFRESH_TOKEN) {
+);
+
+if (process.env.GOOGLE_REFRESH_TOKEN) {
     oauth2Client.setCredentials({
-      refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
+        refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
     });
-  }
-  
-  const DRIVE_SCOPES = ['https://www.googleapis.com/auth/drive.readonly'];
+}
+
+const DRIVE_SCOPES = ['https://www.googleapis.com/auth/drive.readonly'];
 
 const uploadsRoot = path.join(__dirname, 'uploads');
 const themesUploadDir = path.join(uploadsRoot, 'themes');
 
 
 if (!fs.existsSync(themesUploadDir)) {
-  fs.mkdirSync(themesUploadDir, { recursive: true });
+    fs.mkdirSync(themesUploadDir, { recursive: true });
 }
 
 const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, themesUploadDir);
-  },
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname) || '.png';
-    const baseName = path.basename(file.originalname, ext).replace(/[^a-z0-9]+/gi, '-').toLowerCase();
-    const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    cb(null, `${baseName || 'theme'}-${unique}${ext}`);
-  },
+    destination: (_req, _file, cb) => {
+        cb(null, themesUploadDir);
+    },
+    filename: (_req, file, cb) => {
+        const ext = path.extname(file.originalname) || '.png';
+        const baseName = path.basename(file.originalname, ext).replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+        const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+        cb(null, `${baseName || 'theme'}-${unique}${ext}`);
+    },
 });
 
 const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
+    storage,
+    limits: { fileSize: 5 * 1024 * 1024 },
 });
 
 app.use(cors());
@@ -57,65 +61,65 @@ app.use(express.json());
 app.use('/uploads', express.static(uploadsRoot));
 
 const verifyAdmin = (req, res, next) => {
-  if (!ADMIN_TOKEN) {
+    if (!ADMIN_TOKEN) {
+        return next();
+    }
+    const providedToken = req.get('x-admin-token');
+    if (providedToken !== ADMIN_TOKEN) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
     return next();
-  }
-  const providedToken = req.get('x-admin-token');
-  if (providedToken !== ADMIN_TOKEN) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-  return next();
 };
 
 //APIS
 app.get('/', (req, res) => {
-  res.send('Hello from the backend!');
+    res.send('Hello from the backend!');
 });
 
 app.get('/auth/google', (req, res) => {
     const url = oauth2Client.generateAuthUrl({
-      access_type: 'offline',   // important: gives refresh_token
-      scope: DRIVE_SCOPES,
-      prompt: 'consent',        // forces consent so we actually get a refresh_token
+        access_type: 'offline',   // important: gives refresh_token
+        scope: DRIVE_SCOPES,
+        prompt: 'consent',        // forces consent so we actually get a refresh_token
     });
-  
-    res.redirect(url);
-  });
 
-  app.get('/oauth2callback', async (req, res) => {
+    res.redirect(url);
+});
+
+app.get('/oauth2callback', async (req, res) => {
     const code = req.query.code;
     if (!code) {
-      return res.status(400).send('Missing "code" parameter.');
+        return res.status(400).send('Missing "code" parameter.');
     }
-  
+
     try {
-      const { tokens } = await oauth2Client.getToken(code);
-      // tokens will contain access_token, refresh_token, expiry_date, etc.
-      console.log('Google OAuth tokens:', tokens);
-  
-      // You can store it anywhere secure. For quick dev, write to a local file:
-      fs.writeFileSync(
-        path.join(__dirname, 'google-tokens.json'),
-        JSON.stringify(tokens, null, 2)
-      );
-  
-      res.send('Authorization successful. You can close this window now.');
+        const { tokens } = await oauth2Client.getToken(code);
+        // tokens will contain access_token, refresh_token, expiry_date, etc.
+        console.log('Google OAuth tokens:', tokens);
+
+        // You can store it anywhere secure. For quick dev, write to a local file:
+        fs.writeFileSync(
+            path.join(__dirname, 'google-tokens.json'),
+            JSON.stringify(tokens, null, 2)
+        );
+
+        res.send('Authorization successful. You can close this window now.');
     } catch (err) {
-      console.error('Error exchanging code for tokens:', err);
-      res.status(500).send('Failed to get tokens. Check server logs.');
+        console.error('Error exchanging code for tokens:', err);
+        res.status(500).send('Failed to get tokens. Check server logs.');
     }
-  });
+});
 
 app.post('/api/admin/upload-theme', verifyAdmin, upload.single('theme'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'Файл не получен.' });
-  }
+    if (!req.file) {
+        return res.status(400).json({ error: 'Файл не получен.' });
+    }
 
-  const relativePath = `/uploads/themes/${req.file.filename}`;
-  return res.status(201).json({
-    message: 'Изображение загружено.',
-    url: relativePath,
-  });
+    const relativePath = `/uploads/themes/${req.file.filename}`;
+    return res.status(201).json({
+        message: 'Изображение загружено.',
+        url: relativePath,
+    });
 });
 
 app.post('/api/admin/next-game', verifyAdmin, (req, res) => {
@@ -345,8 +349,8 @@ app.delete('/api/admin/events/:id', verifyAdmin, (req, res) => {
     });
 });
 
-app.post('/api/contacts', (req,res) => {
-    const {name, phone, email, message} = req.body
+app.post('/api/contacts', (req, res) => {
+    const { name, phone, email, message } = req.body
     if (!name || !email) {
         return res.status(400).json({ error: "Name and Email are required fields." })
     }
@@ -364,7 +368,7 @@ app.post('/api/contacts', (req,res) => {
         })
     })
 })
-    
+
 app.get('/api/events', (_req, res) => {
     const sql = `
         SELECT *
@@ -478,6 +482,17 @@ app.post('/api/debug/cache-clear', (req, res) => {
 });
 
 startWatcher()
+
+// Initialize mapping helper used at startup
+let gameMapping = null;
+async function initializeServer() {
+    try {
+        gameMapping = await initializeGameMapping();
+    } catch (error) {
+        console.error('Failed to initialize game mapping:', error);
+        console.warn('Server continuing, but /api/photos may not work correctly');
+    }
+}
 
 // Initialize game mapping and then start server
 initializeServer().then(() => {

@@ -22,21 +22,49 @@ async function initializeDrive() {
     }
 
     try {
-        const credentials = getCredentials();
+        // Support two authentication modes:
+        // 1) Service Account: set GOOGLE_DRIVE_CREDENTIALS with the service account JSON (or base64 encoded)
+        // 2) OAuth2 Refresh Token: set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_REFRESH_TOKEN
 
-        const auth = new google.auth.GoogleAuth({
-            credentials,
-            scopes: ['https://www.googleapis.com/auth/drive.readonly'],
-        });
+        // Mode 1: Service account credentials
+        if (process.env.GOOGLE_DRIVE_CREDENTIALS) {
+            const credentials = getCredentials();
 
-        driveInstance = google.drive({
-            version: 'v3',
-            auth,
-        });
+            const auth = new google.auth.GoogleAuth({
+                credentials,
+                scopes: ['https://www.googleapis.com/auth/drive.readonly'],
+            });
 
-        authorizationDetails = auth;
-        console.log('Google Drive API initialized successfully');
-        return driveInstance;
+            driveInstance = google.drive({
+                version: 'v3',
+                auth,
+            });
+
+            authorizationDetails = auth;
+            console.log('Google Drive API initialized successfully (service account)');
+            return driveInstance;
+        }
+
+        // Mode 2: OAuth2 with refresh token
+        const clientId = process.env.GOOGLE_CLIENT_ID;
+        const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+        const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
+
+        if (clientId && clientSecret && refreshToken) {
+            const oauth2Client = new google.auth.OAuth2(clientId, clientSecret);
+            oauth2Client.setCredentials({ refresh_token: refreshToken });
+
+            driveInstance = google.drive({
+                version: 'v3',
+                auth: oauth2Client,
+            });
+
+            authorizationDetails = oauth2Client;
+            console.log('Google Drive API initialized successfully (OAuth2 refresh token)');
+            return driveInstance;
+        }
+
+        throw new Error('No Google credentials found. Set GOOGLE_DRIVE_CREDENTIALS (service account) or GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET and GOOGLE_REFRESH_TOKEN (OAuth2).');
     } catch (error) {
         console.error('Error initializing Google Drive API:', error);
         throw error;
