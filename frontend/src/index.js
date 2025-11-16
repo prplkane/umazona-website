@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-// import reportWebVitals from './reportWebVitals'; // <-- DELETE THIS LINE
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -11,8 +10,13 @@ root.render(
   </React.StrictMode>
 );
 
-// DELETE THE LINES BELOW
-// // If you want to start measuring performance in your app, pass a function
-// // to log results (for example: reportWebVitals(console.log))
-// // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-// reportWebVitals();
+// Enable smooth scrolling after initial page load to prevent auto-scroll to hash
+if (window.location.hash === '') {
+  // No hash on initial load, enable smooth scroll after a brief delay
+  setTimeout(() => {
+    document.documentElement.classList.add('smooth-scroll');
+  }, 500);
+} else {
+  // Hash exists (user navigated to specific section), just enable smooth scroll
+  document.documentElement.classList.add('smooth-scroll');
+}
