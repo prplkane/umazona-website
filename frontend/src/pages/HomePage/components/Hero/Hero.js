@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import './Hero.css';
 // Make sure you've added your logo to the /public folder
 // or import it if it's in your /src
@@ -34,11 +33,10 @@ function Hero() {
           </p>
         </div>
         
-        {/* 3. The Button (as a Link) */}
-        <Link to="/#events" className="hero-button">
+        {/* 3. The CTA */}
+        <a className="hero-button" href="/#events">
           Explore Upcoming Games
-        </Link>
-        
+        </a>
       </div>
     </section>
   );

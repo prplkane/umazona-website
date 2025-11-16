@@ -60,7 +60,7 @@ function Footer() {
             <a href="#next-games">Schedule &amp; Tickets</a>
             <a href="#gallery">Gallery</a>
             <a href="#extras">Mock Game</a>
-            <a href="#contact">Hire УмAZона</a>
+            <a href="/members">Hire УмAZона</a>
           </div>
           <div className="footer-column">
             <h4>Contact</h4>
@@ -75,7 +75,7 @@ function Footer() {
         <p>&copy; {currentYear} УмAZона. Crafted for unforgettable quiz nights.</p>
         <div className="footer-bottom-links">
           <a href="#gallery">Gallery</a>
-          <a href="#contact">Book a private game</a>
+          <a href="/members">Book a private game</a>
         </div>
       </div>
     </footer>

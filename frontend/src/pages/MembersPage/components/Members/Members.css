@@ -1,166 +1,283 @@
 .members-section {
   position: relative;
-  padding: 0px 20px 100px;
-  min-height: 80vh;
-  /* Uses the modern gradient background */
-  background: radial-gradient(circle at 15% 20%, rgba(80, 180, 255, 0.35), transparent 55%),
-    radial-gradient(circle at 85% 25%, rgba(110, 90, 255, 0.2), transparent 60%),
-    linear-gradient(180deg, #002c83 0%, #011f57 45%, #031a44 100%);
+  padding: clamp(60px, 10vw, 120px) clamp(20px, 6vw, 64px) clamp(90px, 14vw, 160px);
+  background: radial-gradient(circle at 18% 18%, rgba(92, 190, 255, 0.35), transparent 55%),
+    radial-gradient(circle at 82% 14%, rgba(142, 110, 255, 0.24), transparent 60%),
+    linear-gradient(185deg, #001d54 0%, #011642 45%, #020f31 100%);
   overflow: hidden;
 }
 
-/* This adds the "frosted glass" lighting effect */
 .members-section::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(120deg, rgba(255, 255, 255, 0.12), transparent 55%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), transparent 65%);
   mix-blend-mode: screen;
   pointer-events: none;
 }
 
 .members-container {
-  max-width: 1400px; /* Wider to fit cards horizontally */
-  margin: 0 auto;
-  text-align: center;
   position: relative;
   z-index: 1;
-  width: 100%;
-}
-
-.members-container h2 {
-  font-size: clamp(2.2rem, 5vw, 3.2rem);
-  color: #f2f6ff;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  margin-bottom: 10px;
-}
-
-.members-container p {
-  font-size: clamp(1rem, 2.5vw, 1.25rem);
-  color: #a8cbff;
-  margin-bottom: 40px;
-}
-
-.members-list {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  flex-wrap: nowrap;
-  gap: 20px;
-  overflow-x: auto;
-  padding-bottom: 12px;
-  scroll-snap-type: x mandatory;
-}
-
-/* This is the modern "frosted glass" card */
-.member-bio-card {
+  max-width: 1180px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  flex-shrink: 0;
-  width: clamp(240px, 28vw, 350px);
-  gap: 15px;
-  background-color: rgba(6, 31, 94, 0.45);
-  backdrop-filter: blur(8px);
-  border-radius: 12px;
-  padding: 20px;
-  border: 1px solid rgba(137, 248, 255, 0.2);
-  box-shadow: 0 16px 35px rgba(0, 0, 0, 0.3);
-  text-align: left;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-  scroll-snap-align: center;
-}
-.member-bio-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 22px 45px rgba(0, 0, 0, 0.4);
-  border-color: rgba(137, 248, 255, 0.5);
+  gap: clamp(32px, 5vw, 52px);
+  color: #f3f6ff;
 }
 
-/* Left column (info) */
-.member-info {
-  flex: 1;
-  color: #f2f6ff;
-  min-width: 0;
-}
-
-/* Right column (photo) */
-.member-photo {
-  flex: 0 0 auto;
-  width: 100%;
-  aspect-ratio: 4 / 5;
+.members-header {
+  text-align: center;
   display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.members-header h2 {
+  margin: 0;
+  font-size: clamp(2.4rem, 6vw, 3.4rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #f6fbff;
+}
+
+.members-header p {
+  margin: 0 auto;
+  max-width: 620px;
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  color: rgba(205, 224, 255, 0.82);
+  line-height: 1.6;
+}
+
+.members-hero {
+  margin: 0 auto;
+  width: min(100%, 880px);
+  border-radius: 32px;
+  overflow: hidden;
+  box-shadow: 0 28px 60px rgba(4, 16, 48, 0.46);
+  background: rgba(11, 30, 70, 0.65);
+}
+
+.members-hero img {
+  display: block;
+  width: 100%;
+  height: clamp(220px, 35vw, 340px);
+  object-fit: cover;
+}
+
+.members-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: clamp(20px, 3vw, 28px);
+}
+
+.member-card {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(16px, 2.5vw, 22px);
+  background: rgba(6, 30, 84, 0.62);
+  border-radius: 28px;
+  padding: clamp(22px, 2.8vw, 30px);
+  border: 1px solid rgba(120, 186, 255, 0.2);
+  box-shadow: 0 22px 45px rgba(4, 18, 52, 0.4);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.member-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(150, 230, 255, 0.45);
+  box-shadow: 0 30px 60px rgba(6, 28, 70, 0.5);
+}
+
+.member-card__media {
+  display: flex;
+  justify-content: center;
+}
+
+.member-card__photo {
+  width: clamp(160px, 32vw, 220px);
+  height: clamp(160px, 32vw, 220px);
+  object-fit: cover;
+  border-radius: 22px;
+  border: 2px solid rgba(173, 215, 255, 0.35);
+  box-shadow: 0 18px 30px rgba(0, 0, 0, 0.35);
+}
+
+.member-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(18px, 3vw, 26px);
+}
+
+.member-card__name {
+  margin: 0;
+  font-size: clamp(1.6rem, 3.2vw, 2.2rem);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-align: center;
+  color: #ffffff;
+}
+
+.member-card__contact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.95rem;
+  color: rgba(195, 220, 255, 0.86);
+}
+
+.member-card__contact a {
+  color: #8feaff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.member-card__contact a:hover,
+.member-card__contact a:focus-visible {
+  text-decoration: underline;
+}
+
+.member-card__section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.member-card__section h4 {
+  margin: 0;
+  font-size: 0.96rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(173, 214, 255, 0.8);
+}
+
+.member-card__about-list,
+.member-card__facts-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.member-card__about-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.member-card__about-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(7, 29, 68, 0.5);
+  border: 1px solid rgba(126, 188, 255, 0.2);
+  font-size: 0.95rem;
+}
+
+.about-label {
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: rgba(197, 224, 255, 0.78);
+  text-transform: uppercase;
+  font-size: 0.78rem;
+}
+
+.about-value {
+  color: #ffffff;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.life-fact-button {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(8, 30, 72, 0.55);
+  border-radius: 16px;
+  border: 1px solid rgba(120, 186, 255, 0.2);
+  color: rgba(232, 242, 255, 0.92);
+  font-size: 0.92rem;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.life-fact-button:hover,
+.life-fact-button:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(158, 232, 255, 0.5);
+  background: rgba(10, 42, 90, 0.7);
+}
+
+.life-fact-button__icon {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  overflow: hidden;
+  width: 1.8rem;
+  font-size: 1.35rem;
+  color: rgba(143, 236, 255, 0.85);
 }
 
-.member-image {
-  width: 100%;
-  height: 100%;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-  display: block;
-  border-radius: 8px;
-  filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.2));
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  /* subtle placeholder background so loading area blends with card */
-  background-color: rgba(255,255,255,0.02);
-}
-
-.member-name-header {
-  font-size: clamp(1.3rem, 3vw, 1.8rem);
-  font-weight: 700;
-  color: #fff;
-  margin: 0 0 12px 0;
-  border-bottom: 2px solid #a8cbff;
-  padding-bottom: 8px;
-}
-
-.info-title {
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  color: #a8cbff;
-  margin: 8px 0 6px 0;
-  letter-spacing: 0.05em;
-}
-
-.about-me-list,
-.life-facts-list {
-  padding-left: 12px;
-  margin: 0;
-  font-size: 0.85rem;
+.life-fact-button__text {
+  flex: 1;
   line-height: 1.5;
 }
 
-.about-me-list {
-  list-style-type: none;
-  padding-left: 0;
+.life-fact-button[data-revealed="false"] .life-fact-button__icon {
+  color: rgba(143, 236, 255, 0.55);
 }
 
-.about-me-list li {
-  margin-bottom: 4px;
+.life-fact-button[data-revealed="true"].verdict-truth .life-fact-button__icon {
+  color: #77ffa7;
 }
 
-.life-facts-list li {
-  margin-bottom: 3px;
+.life-fact-button[data-revealed="true"].verdict-lie .life-fact-button__icon {
+  color: #ff8a8a;
 }
 
-.member-contact-info {
-  margin-top: 8px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #fff;
-  background-color: rgba(0, 0, 0, 0.2);
-  padding: 8px 10px;
-  border-radius: 6px;
+.life-fact-button[data-revealed="true"] {
+  border-color: rgba(158, 232, 255, 0.45);
+  background: rgba(10, 42, 90, 0.7);
+}
+
+.member-card__facts-list {
+  gap: 10px;
 }
 
 @media (max-width: 768px) {
-  .member-bio-card {
-    /* Stack info on top of photo */
-    flex-direction: column-reverse;
+  .members-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .member-card {
+    padding: 24px;
+  }
+
+  .member-card__photo {
+    width: clamp(160px, 60vw, 220px);
+    height: clamp(160px, 60vw, 220px);
+  }
+
+  .member-card__about-list {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .members-hero img {
+    height: clamp(200px, 48vw, 260px);
+  }
+
+  .life-fact-button {
+    font-size: 0.92rem;
+    padding: 10px 14px;
   }
 }

@@ -165,7 +165,7 @@ function Extras() {
             <span className="extras-link">Запустить мини-квиз →</span>
           </button>
 
-          <a className="extras-card" data-accent="hire" href="#contact">
+          <a className="extras-card" data-accent="hire" href="/members">
             <div className="extras-card-header">
               <span className="extras-icon" aria-hidden="true">🤝</span>
               <span className="extras-badge">corporate</span>
