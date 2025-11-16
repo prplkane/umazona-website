@@ -118,7 +118,7 @@ function NextGames({ events, loading, error }) {
             <div className="next-games-card next-card">
               <span className="card-eyebrow">Ближайшая игра</span>
               {renderNextGame()}
-              <a href="#contact" className="card-cta">Забронировать стол →</a>
+              <a href="/#events" className="card-cta">Забронировать стол →</a>
             </div>
           </div>
         </div>
