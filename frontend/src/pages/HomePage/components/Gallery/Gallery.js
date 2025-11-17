@@ -1,61 +1,86 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Gallery.css';
 
-const mockAlbums = [
-  {
-    id: 'spring-cup-2025',
-    title: 'Spring Cup · March 2025',
-    location: 'Sochi',
-    cover:
-      'https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&w=600&q=80',
-    preview:
-      'https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&w=400&q=60',
-    photos: 48,
-  },
-  {
-    id: 'corporate-night',
-    title: 'Corporate Night · Gazprom',
-    location: 'Moscow',
-    cover:
-      'https://images.unsplash.com/photo-1529158062015-cad636e69505?auto=format&fit=crop&w=600&q=80',
-    preview:
-      'https://images.unsplash.com/photo-1529158062015-cad636e69505?auto=format&fit=crop&w=400&q=60',
-    photos: 36,
-  },
-  {
-    id: 'beach-quiz',
-    title: 'Beach Trivia Sunset',
-    location: 'Adler',
-    cover:
-      'https://images.unsplash.com/photo-1530023367847-a683933f4177?auto=format&fit=crop&w=600&q=80',
-    preview:
-      'https://images.unsplash.com/photo-1530023367847-a683933f4177?auto=format&fit=crop&w=400&q=60',
-    photos: 24,
-  },
-  {
-    id: 'halloween-special',
-    title: 'Halloween Special',
-    location: 'St. Petersburg',
-    cover:
-      'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=600&q=80',
-    preview:
-      'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=400&q=60',
-    photos: 52,
-  },
-  {
-    id: 'family-day',
-    title: 'Family Day Mini Quiz',
-    location: 'Krasnaya Polyana',
-    cover:
-      'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=600&q=80',
-    preview:
-      'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=60',
-    photos: 31,
-  },
-];
-
 function Gallery() {
-  const albums = useMemo(() => mockAlbums, []);
+  const [albums, setAlbums] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [active, setActive] = useState(null);
+
+  const navigate = useNavigate();
+  const API_BASE = process.env.REACT_APP_API_BASE || '';
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function load() {
+      setLoading(true);
+      try {
+        const API_BASE = process.env.REACT_APP_API_BASE || '';
+
+        async function safeFetchJson(url, opts) {
+          const resp = await fetch(url, opts);
+          const contentType = resp.headers.get('content-type') || '';
+          if (!resp.ok) {
+            const text = await resp.text();
+            throw new Error(`Request failed (${resp.status}): ${text}`);
+          }
+          if (contentType.includes('application/json')) {
+            return resp.json();
+          }
+
+          const text = await resp.text();
+          return { __raw: text };
+        }
+
+        // Default to 'umazon test' when REACT_APP_GALLERY_PARENT is not set
+        const GALLERY_PARENT = process.env.REACT_APP_GALLERY_PARENT || 'umazon test';
+        const parentQuery = GALLERY_PARENT ? `?parent=${encodeURIComponent(GALLERY_PARENT)}` : '';
+
+        // Use combined endpoint to fetch children + cover id in a single request
+        const foldersJson = await safeFetchJson(`${API_BASE}/api/folders/children-with-cover${parentQuery}`);
+        const folders = foldersJson.folders || [];
+
+        const mapped = folders.map((f) => {
+          return {
+            name: f.name,
+            id: f.id,
+            coverId: f.coverId || null,
+            count: f.count || 0,
+            titlePhoto: f.titlePhoto || null,
+            photos: [],
+            redirected: false,
+            folderId: f.id,
+          };
+        });
+
+        if (mounted) setAlbums(mapped);
+      } catch (err) {
+        console.error('Failed to load galleries', err);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+
+    load();
+    return () => { mounted = false; };
+  }, []);
+
+  // Note: album opening now navigates to a dedicated page (`/gallery/:folderId`).
+  // The previous `openAlbum` helper (which fetched /api/photos and opened a modal)
+  // was removed to avoid an unused-variable ESLint warning.
+
+  if (loading) {
+    return (
+      <section id="gallery" className="gallery-section">
+        <div className="gallery-intro">
+          <p className="gallery-eyebrow">Моменты вечеров</p>
+          <h2>Погрузись в атмосферу УмAZона</h2>
+          <p>Загрузка альбомов...</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="gallery" className="gallery-section">
@@ -63,41 +88,65 @@ function Gallery() {
         <p className="gallery-eyebrow">Моменты вечеров</p>
         <h2>Погрузись в атмосферу УмAZона</h2>
         <p>
-          Каждое событие — новая история. Скоро здесь появится живая лента альбомов, которую вы сможете
-          пополнять через Cloudinary.
+          Каждое событие — новая история. Альбомы автоматически подтягиваются из Google Drive.
         </p>
       </div>
 
       <div className="album-carousel" role="list">
         {albums.map((album) => (
-          <article className="album-card" key={album.id} role="listitem">
-            <div className="album-cover">
-              <img src={album.cover} alt={`${album.title} cover`} loading="lazy" />
+          <article className="album-card" key={album.id || album.name} role="listitem">
+            <div className="album-cover" onClick={() => navigate(`/gallery/${encodeURIComponent(album.id)}`)} style={{ cursor: 'pointer' }}>
+              {album.coverId ? (
+                <img src={`${API_BASE ? API_BASE : ''}/api/photo/${album.coverId}`} alt={`${album.name} cover`} loading="lazy" />
+              ) : (
+                <div className="album-placeholder">No cover</div>
+              )}
               <div className="album-cover-glow" />
             </div>
             <div className="album-meta">
               <div className="album-header">
-                <span className="album-location">{album.location}</span>
-                <span className="album-count">{album.photos} photos</span>
+                <span className="album-location">{album.name}</span>
+                <span className="album-count">{album.count} photos</span>
               </div>
-              <h3>{album.title}</h3>
-              <button type="button" className="album-button">
+              <h3>{album.name}</h3>
+              <button type="button" className="album-button" onClick={() => navigate(`/gallery/${encodeURIComponent(album.id)}`)}>
                 View album
               </button>
             </div>
           </article>
         ))}
-        <div className="album-card album-card--upload" role="listitem">
-          <div className="upload-inner">
-            <div className="upload-icon" aria-hidden="true">+</div>
-            <h3>Добавить альбом</h3>
-            <p>Подготовьте Cloudinary preset и загрузите новые фото, чтобы гости увидели себя.</p>
-            <button type="button" className="album-button upload-button">
-              Upload via Cloudinary
-            </button>
+      </div>
+
+      {/* Simple modal viewer for active album */}
+      {active && (
+        <div className="gallery-modal" onClick={() => setActive(null)}>
+          <div className="gallery-modal-inner" onClick={(e) => e.stopPropagation()}>
+            <header className="gallery-modal-header">
+              <h3>{active.name}</h3>
+              <button onClick={() => setActive(null)}>Close</button>
+            </header>
+            <div className="gallery-modal-body">
+              {active.titlePhoto ? (
+                <div className="title-photo">
+                  <img src={(active.titlePhoto.webContentLink || active.titlePhoto.webViewLink)} alt="title" />
+                </div>
+              ) : null}
+              <div className="thumbnails">
+                {active.photos && active.photos.length > 0 ? (
+                  active.photos.map(p => (
+                    <figure key={p.id} className="thumb">
+                      <img src={(p.webContentLink || p.webViewLink)} alt={p.name} loading="lazy" />
+                      <figcaption>{p.name}</figcaption>
+                    </figure>
+                  ))
+                ) : (
+                  <p>No photos in this album.</p>
+                )}
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </section>
   );
 }

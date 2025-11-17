@@ -1,4 +1,4 @@
-const { discoverGameFolders } = require('./googleDriveService');
+const { discoverSubfolders } = require('./googleDriveService');
 
 let discoveredGameMap = null;
 let discoveryAttempted = false;
@@ -14,9 +14,10 @@ async function initializeGameMapping() {
             return discoveredGameMap;
         }
 
-        console.log('\n🔍 Discovering photo folders from Google Drive...');
+        console.log('\n🔍 Discovering photo folders under configured parent (e.g. "umazon test")...');
 
-        const folders = await discoverGameFolders();
+        // discoverSubfolders() will resolve the parent using UMAZON_EVENTS_PARENT_FOLDER_ID or default to 'umazon test'
+        const folders = await discoverSubfolders();
         discoveredGameMap = {};
 
         // Create mapping: folder name -> folder ID

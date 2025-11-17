@@ -1,5 +1,7 @@
 const { google } = require('googleapis');
 const { getCredentials } = require('./credentials');
+const fs = require('fs');
+const path = require('path');
 
 // Cache to store authorization and drive instance
 let driveInstance = null;
@@ -11,6 +13,9 @@ const folderCache = {
     timestamp: null,
     TTL: 60 * 60 * 1000, // 1 hour in milliseconds
 };
+
+// Cache for parent -> children folder listings
+const parentFolderCache = {}; // { [parentId]: { data, timestamp } }
 
 /**
  * Initialize Google Drive API client
@@ -84,13 +89,87 @@ async function getPhotosFromFolder(folderId) {
             q: `'${folderId}' in parents and mimeType contains 'image' and trashed=false`,
             spaces: 'drive',
             fields: 'files(id, name, mimeType, createdTime, webViewLink, webContentLink)',
-            pageSize: 100,
+            pageSize: 200,
         });
 
-        return response.data.files || [];
+        const files = response.data.files || [];
+
+        // Detect a title photo using a priority list:
+        // 1) basename === 'title' (exact, no extension)
+        // 2) basename startsWith 'title' (e.g. 'title-1')
+        // 3) name contains 'title'
+        // 4) basename === 'cover' or contains 'cover' as a fallback
+        let titlePhoto = null;
+        const normalized = files.map(f => ({
+            raw: f,
+            name: String(f.name || '').trim(),
+            base: String(f.name || '').replace(/\.[^/.]+$/, '').toLowerCase(),
+            lc: String(f.name || '').toLowerCase(),
+        }));
+
+        // Exact base 'title'
+        for (const n of normalized) {
+            if (n.base === 'title') {
+                titlePhoto = n.raw;
+                break;
+            }
+        }
+
+        // Starts with 'title'
+        if (!titlePhoto) {
+            for (const n of normalized) {
+                if (n.base.startsWith('title')) {
+                    titlePhoto = n.raw;
+                    break;
+                }
+            }
+        }
+
+        // Contains 'title'
+        if (!titlePhoto) {
+            for (const n of normalized) {
+                if (n.lc.includes('title')) {
+                    titlePhoto = n.raw;
+                    break;
+                }
+            }
+        }
+
+        // Fallback: look for 'cover' named files
+        if (!titlePhoto) {
+            for (const n of normalized) {
+                if (n.base === 'cover' || n.lc.includes('cover')) {
+                    titlePhoto = n.raw;
+                    break;
+                }
+            }
+        }
+
+        return { files, titlePhoto };
     } catch (error) {
         console.error('Error fetching photos from folder:', error);
         throw error;
+    }
+}
+
+/**
+ * Ensure a corresponding local folder exists for a Drive folder.
+ * Creates `uploads/gdrive/<safe-name>` if missing.
+ */
+function ensureLocalFolder(folderName) {
+    try {
+        const uploadsRoot = path.join(__dirname, '..', 'uploads');
+        const localRoot = path.join(uploadsRoot, 'gdrive');
+        if (!fs.existsSync(localRoot)) fs.mkdirSync(localRoot, { recursive: true });
+
+        // safe folder name
+        const safe = folderName.replace(/[^a-z0-9-_]+/gi, '-').toLowerCase() || 'drive-folder';
+        const target = path.join(localRoot, safe);
+        if (!fs.existsSync(target)) fs.mkdirSync(target, { recursive: true });
+        return target;
+    } catch (err) {
+        console.warn('Failed to ensure local folder for drive folder:', err.message);
+        return null;
     }
 }
 
@@ -123,15 +202,81 @@ async function getPhotoMetadata(fileId) {
  */
 async function getPhotosByGame(gameId, gameToFolderMap) {
     try {
-        const folderId = gameToFolderMap[gameId];
+        // Support nested path: e.g. 'parent/child/grandchild'
+        const pathSegments = String(gameId).split('/').map(s => s.trim()).filter(Boolean);
+        if (pathSegments.length === 0) return { photos: [], titlePhoto: null };
 
-        if (!folderId) {
-            console.warn(`No folder mapping found for game: ${gameId}`);
-            return [];
+        const drive = await initializeDrive();
+
+        // Resolve the first segment to a folder ID
+        let currentFolderId = null;
+        const first = pathSegments[0].toLowerCase();
+        if (gameToFolderMap && gameToFolderMap[first]) {
+            currentFolderId = gameToFolderMap[first];
+        } else {
+            // Try to find by name
+            const found = await findFolderByName(first);
+            if (found) currentFolderId = found.id;
         }
 
-        const photos = await getPhotosFromFolder(folderId);
-        return photos;
+        if (!currentFolderId) {
+            console.warn(`No folder mapping found for game: ${gameId}`);
+            return { photos: [], titlePhoto: null };
+        }
+
+        // Traverse further segments (children)
+        let redirected = false;
+        for (let i = 1; i < pathSegments.length; i++) {
+            const seg = pathSegments[i].toLowerCase();
+            const resp = await drive.files.list({
+                q: `'${currentFolderId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false and lower(name)='${seg}'`,
+                spaces: 'drive',
+                fields: 'files(id, name)',
+                pageSize: 10,
+            });
+            const children = resp.data.files || [];
+            if (children.length > 0) {
+                currentFolderId = children[0].id;
+            } else {
+                // Not found – stop traversal
+                currentFolderId = null;
+                break;
+            }
+        }
+
+        if (!currentFolderId) {
+            console.warn(`Nested folder not found for path: ${gameId}`);
+            return { photos: [], titlePhoto: null };
+        }
+
+        // If the resolved folder has exactly one child folder and the request targeted the parent, auto-descend
+        if (pathSegments.length === 1) {
+            const childrenResp = await drive.files.list({
+                q: `'${currentFolderId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,
+                spaces: 'drive',
+                fields: 'files(id, name)',
+                pageSize: 20,
+            });
+            const childFolders = childrenResp.data.files || [];
+            if (childFolders.length === 1) {
+                // auto-redirect to the single child
+                redirected = true;
+                currentFolderId = childFolders[0].id;
+            }
+        }
+
+        // Ensure local folder exists for this Drive folder
+        try {
+            const metaResp = await drive.files.get({ fileId: currentFolderId, fields: 'id, name' });
+            if (metaResp && metaResp.data && metaResp.data.name) {
+                ensureLocalFolder(metaResp.data.name);
+            }
+        } catch (e) {
+            // ignore
+        }
+
+        const { files, titlePhoto } = await getPhotosFromFolder(currentFolderId);
+        return { photos: files, titlePhoto, folderId: currentFolderId, redirected };
     } catch (error) {
         console.error(`Error fetching photos for game ${gameId}:`, error);
         throw error;
@@ -168,10 +313,120 @@ async function discoverGameFolders() {
         folderCache.data = folders;
         folderCache.timestamp = now;
 
+        // Ensure local folders exist for discovered Drive folders
+        try {
+            for (const f of folders) {
+                if (f && f.name) ensureLocalFolder(f.name);
+            }
+        } catch (e) {
+            console.warn('Error ensuring local folders for discovered Drive folders:', e.message);
+        }
+
         console.log(`Found ${folders.length} folders in Google Drive`);
         return folders;
     } catch (error) {
         console.error('Error discovering folders:', error);
+        throw error;
+    }
+}
+
+/**
+ * Discover immediate subfolders of a given parent folder (by id or name).
+ * If no identifier provided, uses env UMAZON_EVENTS_PARENT_FOLDER_ID or falls back to name 'umazon test'.
+ * Returns array of { id, name, createdTime } for children only (not recursive).
+ */
+async function discoverSubfolders(parentIdentifier) {
+    try {
+        const drive = await initializeDrive();
+
+        // Resolve parent ID
+        let parentId = null;
+        const envParent = process.env.UMAZON_EVENTS_PARENT_FOLDER_ID;
+
+        // If explicit parentIdentifier provided, try using it as ID first
+        if (parentIdentifier) {
+            // try treat as ID
+            try {
+                const meta = await drive.files.get({ fileId: parentIdentifier, fields: 'id,name' });
+                if (meta && meta.data && meta.data.id) parentId = meta.data.id;
+            } catch (e) {
+                // not an ID, we'll treat as name
+            }
+        }
+
+        // If still no parentId and env var set, try that
+        if (!parentId && envParent) {
+            try {
+                const meta = await drive.files.get({ fileId: envParent, fields: 'id,name' });
+                if (meta && meta.data && meta.data.id) parentId = meta.data.id;
+            } catch (e) {
+                // ignore
+            }
+        }
+
+        // If still not found, try by name: provided identifier or 'umazon test'
+        if (!parentId) {
+            const nameToFind = parentIdentifier || 'umazon test';
+            // Try fast cached discovery first
+            const folders = await discoverGameFolders();
+            const found = folders.find(f => f.name && f.name.toLowerCase() === String(nameToFind).toLowerCase());
+            if (found) parentId = found.id;
+            else {
+                // Query Drive directly for a folder named exactly nameToFind
+                const resp = await drive.files.list({
+                    q: `mimeType='application/vnd.google-apps.folder' and name='${nameToFind.replace(/'/g, "\\'")}' and trashed=false`,
+                    spaces: 'drive',
+                    fields: 'files(id,name)',
+                    pageSize: 10,
+                });
+                const candidates = resp.data.files || [];
+                if (candidates.length > 0) parentId = candidates[0].id;
+            }
+        }
+
+        if (!parentId) {
+            console.warn('Could not resolve parent folder for', parentIdentifier || envParent || 'umazon test');
+            return [];
+        }
+
+        // Log resolved parent for debugging (helps confirm we're querying the expected folder)
+        try {
+            console.log(`discoverSubfolders: resolved parent -> id=${parentId} identifier=${parentIdentifier || envParent || 'umazon test'}`);
+        } catch (e) {
+            // ignore
+        }
+        // Check cache for this parent
+        const now = Date.now();
+        const cacheEntry = parentFolderCache[parentId];
+        if (cacheEntry && (now - cacheEntry.timestamp) < folderCache.TTL) {
+            return cacheEntry.data;
+        }
+
+        // List immediate children folders
+        const response = await drive.files.list({
+            q: `'${parentId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,
+            spaces: 'drive',
+            fields: 'files(id, name, createdTime, modifiedTime)',
+            pageSize: 500,
+        });
+
+        const children = response.data.files || [];
+
+        // Cache it
+        parentFolderCache[parentId] = { data: children, timestamp: now };
+
+        // Ensure local folders for these children
+        try {
+            for (const c of children) {
+                if (c && c.name) ensureLocalFolder(c.name);
+            }
+        } catch (e) {
+            console.warn('Error ensuring local folders for parent children:', e.message);
+        }
+
+        return children;
+    } catch (error) {
+        console.error('Error discovering subfolders:', error);
         throw error;
     }
 }
@@ -261,6 +516,7 @@ module.exports = {
     discoverGameFolders,
     findFolderByName,
     autoMapGameFolders,
+    discoverSubfolders,
     clearFolderCache,
     getCacheStatus,
 };

@@ -11,7 +11,7 @@ const db = require('./database.js');
 const { startWatcher } = require('./utils/csvWatcher.js');
 
 // Google Drive and game mapping utilities
-const { getPhotosByGame, discoverGameFolders, getCacheStatus, clearFolderCache } = require('./utils/googleDriveService.js');
+const { getPhotosByGame, discoverGameFolders, discoverSubfolders, getCacheStatus, clearFolderCache } = require('./utils/googleDriveService.js');
 const { initializeGameMapping, getGameFolderId, getAvailableGames, getGameMapping } = require('./utils/gameConfig.js');
 
 const PORT = process.env.PORT || 3000;
@@ -71,11 +71,7 @@ const verifyAdmin = (req, res, next) => {
     return next();
 };
 
-//APIS
-app.get('/', (req, res) => {
-    res.send('Hello from the backend!');
-});
-
+// APIS
 app.get('/auth/google', (req, res) => {
     const url = oauth2Client.generateAuthUrl({
         access_type: 'offline',   // important: gives refresh_token
@@ -391,7 +387,40 @@ app.get('/api/events', (_req, res) => {
 
 app.get('/api/photos', async (req, res) => {
     try {
-        const { game } = req.query;
+        const { game, folderId } = req.query;
+
+        // If a folderId is supplied, fetch directly from that Drive folder (more robust)
+        if (folderId) {
+            try {
+                const gsvc = require('./utils/googleDriveService.js');
+                const { getPhotosFromFolder, initializeDrive } = gsvc;
+                const { files, titlePhoto } = await getPhotosFromFolder(folderId);
+                // try to fetch folder metadata (name) for better client display
+                let folderName = null;
+                try {
+                    const drive = await initializeDrive();
+                    const meta = await drive.files.get({ fileId: folderId, fields: 'id,name' });
+                    if (meta && meta.data && meta.data.name) folderName = meta.data.name;
+                } catch (e) {
+                    // ignore metadata errors
+                }
+                if ((!files || files.length === 0) && !titlePhoto) {
+                    return res.status(404).json({ error: `No photos found for folderId: ${folderId}` });
+                }
+
+                return res.status(200).json({
+                    message: `Photos retrieved successfully for folderId: ${folderId}`,
+                    folderId,
+                    folderName,
+                    count: files.length,
+                    titlePhoto,
+                    data: files,
+                });
+            } catch (err) {
+                console.error('Error fetching photos by folderId:', err);
+                return res.status(500).json({ error: 'Failed to fetch photos by folderId', details: err.message });
+            }
+        }
 
         if (!game) {
             const availableGames = getAvailableGames();
@@ -402,22 +431,27 @@ app.get('/api/photos', async (req, res) => {
             });
         }
 
-        const folderId = getGameFolderId(game);
-        if (!folderId) {
+        // Use the global game mapping (initialized at startup)
+        const result = await getPhotosByGame(game, gameMapping || {});
+
+        const photos = result.photos || [];
+        const titlePhoto = result.titlePhoto || null;
+
+        if ((!photos || photos.length === 0) && !titlePhoto) {
             const availableGames = getAvailableGames();
             return res.status(404).json({
-                error: `No photos folder found for game: ${game}`,
+                error: `No photos found for: ${game}`,
                 availableGames: availableGames.length > 0 ? availableGames : 'None configured',
-                tip: 'Make sure a folder with this exact name exists in Google Drive',
             });
         }
-
-        const photos = await getPhotosByGame(game, { [game]: folderId });
 
         res.status(200).json({
             message: `Photos retrieved successfully for game: ${game}`,
             game,
             count: photos.length,
+            titlePhoto,
+            redirected: !!result.redirected,
+            folderId: result.folderId,
             data: photos,
         });
     } catch (error) {
@@ -429,6 +463,43 @@ app.get('/api/photos', async (req, res) => {
     }
 });
 
+// Proxy endpoint: Fetch and stream a photo from Google Drive
+app.get('/api/photo/:fileId', async (req, res) => {
+    try {
+        const { fileId } = req.params;
+        if (!fileId) {
+            console.error('❌ /api/photo: Missing fileId');
+            return res.status(400).json({ error: 'Missing fileId parameter' });
+        }
+
+        console.log(`📸 /api/photo: Fetching fileId=${fileId}`);
+        const gsvc = require('./utils/googleDriveService.js');
+        const { initializeDrive } = gsvc;
+        const drive = await initializeDrive();
+
+        // Fetch the file with alt: 'media' to get binary content
+        const response = await drive.files.get(
+            { fileId, alt: 'media' },
+            { responseType: 'arraybuffer' }
+        );
+
+        const buffer = response.data;
+        const contentType = response.headers['content-type'] || 'image/jpeg';
+        const contentLength = buffer ? buffer.byteLength : 0;
+
+        res.setHeader('Content-Type', contentType);
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        if (contentLength > 0) {
+            res.setHeader('Content-Length', contentLength);
+        }
+
+        console.log(`✅ /api/photo: Serving ${fileId} (${contentLength} bytes, ${contentType})`);
+        res.send(buffer);
+    } catch (error) {
+        console.error('❌ Error in /api/photo:', error.message);
+        res.status(500).json({ error: 'Failed to fetch photo', details: error.message });
+    }
+});
 // Debug endpoint: List all discovered folders
 app.get('/api/debug/folders', async (req, res) => {
     try {
@@ -448,6 +519,75 @@ app.get('/api/debug/folders', async (req, res) => {
     } catch (error) {
         res.status(500).json({
             error: 'Failed to discover folders',
+            details: error.message,
+        });
+    }
+});
+
+// Endpoint: List immediate children of a parent folder
+app.get('/api/folders/children', async (req, res) => {
+    try {
+        const parent = req.query.parent;
+        const children = await discoverSubfolders(parent);
+
+        res.status(200).json({
+            message: 'Child folders retrieved successfully',
+            count: children.length,
+            folders: children.map(f => ({ id: f.id, name: f.name, created: f.createdTime, modified: f.modifiedTime })),
+        });
+    } catch (error) {
+        res.status(500).json({
+            error: 'Failed to retrieve child folders',
+            details: error.message,
+        });
+    }
+});
+
+// Endpoint: List immediate children + a detected cover (title photo or first image)
+app.get('/api/folders/children-with-cover', async (req, res) => {
+    try {
+        const parent = req.query.parent;
+        const children = await discoverSubfolders(parent);
+
+        // Require drive helpers locally
+        const gsvc = require('./utils/googleDriveService.js');
+        const { getPhotosFromFolder } = gsvc;
+
+        const items = await Promise.all(children.map(async (c) => {
+            try {
+                const { files, titlePhoto } = await getPhotosFromFolder(c.id);
+                const coverId = (titlePhoto && titlePhoto.id) || (files && files[0] && files[0].id) || null;
+                return {
+                    id: c.id,
+                    name: c.name,
+                    created: c.createdTime,
+                    modified: c.modifiedTime,
+                    count: files ? files.length : 0,
+                    coverId,
+                    titlePhoto: titlePhoto || null,
+                };
+            } catch (e) {
+                return {
+                    id: c.id,
+                    name: c.name,
+                    created: c.createdTime,
+                    modified: c.modifiedTime,
+                    count: 0,
+                    coverId: null,
+                    titlePhoto: null,
+                };
+            }
+        }));
+
+        res.status(200).json({
+            message: 'Child folders with cover retrieved successfully',
+            count: items.length,
+            folders: items,
+        });
+    } catch (error) {
+        console.error('Failed to retrieve child folders with cover', error);
+        res.status(500).json({
+            error: 'Failed to retrieve child folders with cover',
             details: error.message,
         });
     }
@@ -489,8 +629,9 @@ async function initializeServer() {
     try {
         gameMapping = await initializeGameMapping();
     } catch (error) {
-        console.error('Failed to initialize game mapping:', error);
-        console.warn('Server continuing, but /api/photos may not work correctly');
+        console.error('❌ Failed to initialize game mapping:', error.message);
+        console.error('Stack:', error.stack);
+        throw error;  // Re-throw so we see the actual issue at startup
     }
 }
 
