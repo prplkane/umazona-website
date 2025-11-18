@@ -5,6 +5,22 @@
   box-sizing: border-box;
 }
 
+:root {
+  --color-bg-primary: linear-gradient(185deg, #0a318f 0%, #2b76d3 55%, #7ec8f1 100%);
+  --color-surface: #ffffff;
+  --color-surface-soft: rgba(236, 246, 255, 0.9);
+  --color-surface-tinted: rgba(210, 229, 255, 0.85);
+  --color-text-strong: #0f2144;
+  --color-text-muted: rgba(18, 46, 96, 0.72);
+  --color-text-inverse: #f5fbff;
+  --color-accent: #1c63d9;
+  --color-accent-light: #6fb7f0;
+  --color-accent-warm: #ffd36f;
+  --color-border-soft: rgba(89, 177, 255, 0.35);
+  --color-section-gradient: linear-gradient(180deg, rgba(82, 168, 255, 0.18), rgba(255, 255, 255, 0.32));
+  --color-section-highlight: radial-gradient(circle at 82% 12%, rgba(255, 210, 150, 0.16), transparent 60%);
+}
+
 /* 1. Global Smooth Scroll */
 html {
   scroll-behavior: smooth;
@@ -19,8 +35,8 @@ body {
     sans-serif;
 
   /* Foundation background */
-  background: linear-gradient(180deg, #031a44 0%, #002c7f 100%);
-  color: #f4f7ff;
+  background: var(--color-bg-primary);
+  color: var(--color-text-strong);
   padding-top: var(--navbar-height, 80px);
   overflow-x: hidden;
 }
@@ -38,7 +54,7 @@ body {
 section {
   /* Add padding and a border like your prototype */
   padding: 60px 20px;
-  border-bottom: 2px solid #1565c0; /* A lighter blue border */
+  border-bottom: 2px solid var(--color-border-soft);
   min-height: 300px; /* Give sections space */
 }
 
