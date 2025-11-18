@@ -8,15 +8,16 @@ function Gallery() {
   const [active, setActive] = useState(null);
 
   const navigate = useNavigate();
-  const API_BASE = process.env.REACT_APP_API_BASE || '';
+  const API_BASE = process.env.REACT_APP_API_BASE || process.env.REACT_APP_PUBLIC_API_BASE_URL || process.env.REACT_APP_ADMIN_API_BASE_URL || '';
 
   useEffect(() => {
     let mounted = true;
 
     async function load() {
       setLoading(true);
+
       try {
-        const API_BASE = process.env.REACT_APP_API_BASE || '';
+        const API_BASE = process.env.REACT_APP_API_BASE || process.env.REACT_APP_PUBLIC_API_BASE_URL || process.env.REACT_APP_ADMIN_API_BASE_URL || '';
 
         async function safeFetchJson(url, opts) {
           const resp = await fetch(url, opts);
@@ -41,20 +42,44 @@ function Gallery() {
         const foldersJson = await safeFetchJson(`${API_BASE}/api/folders/children-with-cover${parentQuery}`);
         const folders = foldersJson.folders || [];
 
-        const mapped = folders.map((f) => {
+        const mapped = await Promise.all(folders.map(async (f) => {
+          let coverId = f.coverId || null;
+          let titlePhoto = f.titlePhoto || null;
+          let count = f.count || 0;
+
+          try {
+            const photosJson = await safeFetchJson(`${API_BASE}/api/photos?folderId=${encodeURIComponent(f.id)}`);
+            const files = photosJson.data || [];
+            count = photosJson.count || (files.length) || count;
+
+            // Find a title image
+            const titleFile = files.find(p => p.name?.toLowerCase().replace(/\.[^/.]+$/, '') === 'title');
+
+            if (titleFile) {
+              titlePhoto = titleFile;
+              coverId = titleFile.id; // set coverId to titlePhoto
+            } else if (!coverId && files.length > 0) {
+              // fallback to first photo
+              titlePhoto = files[0];
+              coverId = files[0].id;
+            }
+          } catch (err) {
+            console.warn('Failed to fetch photos for folder', f.id, err);
+          }
+
           return {
             name: f.name,
             id: f.id,
-            coverId: f.coverId || null,
-            count: f.count || 0,
-            titlePhoto: f.titlePhoto || null,
+            coverId: coverId || null,
+            count,
+            titlePhoto: titlePhoto || null,
             photos: [],
             redirected: false,
             folderId: f.id,
           };
-        });
+      }));
 
-        if (mounted) setAlbums(mapped);
+      if (mounted) setAlbums(mapped);
       } catch (err) {
         console.error('Failed to load galleries', err);
       } finally {
@@ -95,28 +120,40 @@ function Gallery() {
       <div className="album-carousel" role="list">
         {albums.map((album) => (
           <article className="album-card" key={album.id || album.name} role="listitem">
-            <div className="album-cover" onClick={() => navigate(`/gallery/${encodeURIComponent(album.id)}`)} style={{ cursor: 'pointer' }}>
-              {album.coverId ? (
-                <img src={`${API_BASE ? API_BASE : ''}/api/photo/${album.coverId}`} alt={`${album.name} cover`} loading="lazy" />
-              ) : (
-                <div className="album-placeholder">No cover</div>
-              )}
-              <div className="album-cover-glow" />
-            </div>
+            <div className="album-cover">
+            {album.coverId ? (
+              <img
+                src={`${API_BASE}/api/photo/${album.coverId}`}
+                alt={`${album.name} cover`}
+                loading="lazy"
+              />
+            ) : (
+              <div className="album-placeholder">No cover</div>
+            )}
+            <div className="album-cover-glow" />
+          </div>
+
             <div className="album-meta">
               <div className="album-header">
                 <span className="album-location">{album.name}</span>
                 <span className="album-count">{album.count} photos</span>
               </div>
               <h3>{album.name}</h3>
-              <button type="button" className="album-button" onClick={() => navigate(`/gallery/${encodeURIComponent(album.id)}`)}>
-                View album
-              </button>
+
+              <a
+                className="album-drive-link"
+                href={`https://drive.google.com/drive/folders/${album.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Open in Drive
+              </a>
             </div>
           </article>
         ))}
       </div>
 
+      {/* Simple modal viewer for active album */}
       {/* Simple modal viewer for active album */}
       {active && (
         <div className="gallery-modal" onClick={() => setActive(null)}>
@@ -128,14 +165,21 @@ function Gallery() {
             <div className="gallery-modal-body">
               {active.titlePhoto ? (
                 <div className="title-photo">
-                  <img src={(active.titlePhoto.webContentLink || active.titlePhoto.webViewLink)} alt="title" />
+                  <img
+                    src={`${API_BASE}/api/photo/${active.titlePhoto.id}`}
+                    alt="title"
+                  />
                 </div>
               ) : null}
               <div className="thumbnails">
                 {active.photos && active.photos.length > 0 ? (
                   active.photos.map(p => (
                     <figure key={p.id} className="thumb">
-                      <img src={(p.webContentLink || p.webViewLink)} alt={p.name} loading="lazy" />
+                      <img
+                        src={`${API_BASE}/api/photo/${p.id}`}
+                        alt={p.name}
+                        loading="lazy"
+                      />
                       <figcaption>{p.name}</figcaption>
                     </figure>
                   ))

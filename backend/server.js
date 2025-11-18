@@ -468,38 +468,49 @@ app.get('/api/photo/:fileId', async (req, res) => {
     try {
         const { fileId } = req.params;
         if (!fileId) {
-            console.error('❌ /api/photo: Missing fileId');
             return res.status(400).json({ error: 'Missing fileId parameter' });
         }
 
-        console.log(`📸 /api/photo: Fetching fileId=${fileId}`);
-        const gsvc = require('./utils/googleDriveService.js');
-        const { initializeDrive } = gsvc;
+        const { initializeDrive } = require('./utils/googleDriveService.js');
         const drive = await initializeDrive();
 
-        // Fetch the file with alt: 'media' to get binary content
-        const response = await drive.files.get(
-            { fileId, alt: 'media' },
-            { responseType: 'arraybuffer' }
-        );
-
-        const buffer = response.data;
-        const contentType = response.headers['content-type'] || 'image/jpeg';
-        const contentLength = buffer ? buffer.byteLength : 0;
-
-        res.setHeader('Content-Type', contentType);
-        res.setHeader('Cache-Control', 'public, max-age=86400');
-        if (contentLength > 0) {
-            res.setHeader('Content-Length', contentLength);
+        // Optional: fetch metadata for correct mimeType
+        let mimeType = 'image/jpeg';
+        try {
+            const meta = await drive.files.get({
+                fileId,
+                fields: 'mimeType'
+            });
+            if (meta?.data?.mimeType) {
+                mimeType = meta.data.mimeType;
+            }
+        } catch (err) {
+            console.warn(`Metadata fetch failed for ${fileId}:`, err.message);
         }
 
-        console.log(`✅ /api/photo: Serving ${fileId} (${contentLength} bytes, ${contentType})`);
-        res.send(buffer);
-    } catch (error) {
-        console.error('❌ Error in /api/photo:', error.message);
-        res.status(500).json({ error: 'Failed to fetch photo', details: error.message });
+        // Fetch raw file stream
+        const driveResp = await drive.files.get(
+            { fileId, alt: 'media' },
+            { responseType: 'stream' }
+        );
+
+        res.setHeader('Content-Type', mimeType);
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+
+        // Pipe data directly from Google → client
+        driveResp.data
+            .on('error', (err) => {
+                console.error('Stream error:', err.message);
+                res.status(500).end('Stream error');
+            })
+            .pipe(res);
+
+    } catch (err) {
+        console.error('❌ /api/photo error:', err.message);
+        res.status(500).json({ error: 'Failed to fetch photo', details: err.message });
     }
 });
+
 // Debug endpoint: List all discovered folders
 app.get('/api/debug/folders', async (req, res) => {
     try {

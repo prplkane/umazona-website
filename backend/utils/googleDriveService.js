@@ -100,16 +100,25 @@ async function getPhotosFromFolder(folderId) {
         // 3) name contains 'title'
         // 4) basename === 'cover' or contains 'cover' as a fallback
         let titlePhoto = null;
-        const normalized = files.map(f => ({
-            raw: f,
-            name: String(f.name || '').trim(),
-            base: String(f.name || '').replace(/\.[^/.]+$/, '').toLowerCase(),
-            lc: String(f.name || '').toLowerCase(),
-        }));
+        const allowedExts = new Set(['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'heic']);
+        const normalized = files.map(f => {
+            const name = String(f.name || '').trim();
+            const parts = name.split('.');
+            const ext = parts.length > 1 ? parts[parts.length - 1].toLowerCase() : '';
+            const base = name.replace(/\.[^/.]+$/, '').toLowerCase();
+            return {
+                raw: f,
+                name,
+                base,
+                lc: name.toLowerCase(),
+                ext,
+                isImageExt: allowedExts.has(ext),
+            };
+        });
 
-        // Exact base 'title'
+        // Exact base 'title' (prefer recognized image extensions)
         for (const n of normalized) {
-            if (n.base === 'title') {
+            if (n.base === 'title' && n.isImageExt) {
                 titlePhoto = n.raw;
                 break;
             }
@@ -118,7 +127,7 @@ async function getPhotosFromFolder(folderId) {
         // Starts with 'title'
         if (!titlePhoto) {
             for (const n of normalized) {
-                if (n.base.startsWith('title')) {
+                if (n.base.startsWith('title') && n.isImageExt) {
                     titlePhoto = n.raw;
                     break;
                 }
@@ -128,7 +137,7 @@ async function getPhotosFromFolder(folderId) {
         // Contains 'title'
         if (!titlePhoto) {
             for (const n of normalized) {
-                if (n.lc.includes('title')) {
+                if (n.lc.includes('title') && n.isImageExt) {
                     titlePhoto = n.raw;
                     break;
                 }
@@ -138,11 +147,18 @@ async function getPhotosFromFolder(folderId) {
         // Fallback: look for 'cover' named files
         if (!titlePhoto) {
             for (const n of normalized) {
-                if (n.base === 'cover' || n.lc.includes('cover')) {
+                if ((n.base === 'cover' || n.lc.includes('cover')) && n.isImageExt) {
                     titlePhoto = n.raw;
                     break;
                 }
             }
+        }
+
+        // Debug log: show what was selected as titlePhoto (helps confirm jpg/png detection)
+        try {
+            console.log(`getPhotosFromFolder: folderId=${folderId} files=${files.length} titlePhoto=${titlePhoto ? `${titlePhoto.name} (${titlePhoto.id})` : 'none'}`);
+        } catch (e) {
+            // ignore logging errors
         }
 
         return { files, titlePhoto };

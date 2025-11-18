@@ -16,7 +16,7 @@ function GalleryPage() {
         async function load() {
             setLoading(true);
             try {
-                const API_BASE = process.env.REACT_APP_API_BASE || '';
+                const API_BASE = process.env.REACT_APP_API_BASE || process.env.REACT_APP_PUBLIC_API_BASE_URL || process.env.REACT_APP_ADMIN_API_BASE_URL || '';
 
                 async function safeFetchJson(url, opts) {
                     const resp = await fetch(url, opts);
@@ -67,7 +67,7 @@ function GalleryPage() {
         </section>
     );
 
-    const API_BASE = process.env.REACT_APP_API_BASE || '';
+    const API_BASE = process.env.REACT_APP_API_BASE || process.env.REACT_APP_PUBLIC_API_BASE_URL || process.env.REACT_APP_ADMIN_API_BASE_URL || '';
 
     return (
         <section className="gallery-section">
