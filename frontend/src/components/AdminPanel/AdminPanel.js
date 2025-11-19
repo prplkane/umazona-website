@@ -1,6 +1,83 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import './AdminPanel.css';
 
+const WEEKDAY_LABELS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+const CLOCK_LABELS = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+const HOUR_OPTIONS = Array.from({ length: 24 }, (_, index) => index);
+const MINUTE_OPTIONS = Array.from({ length: 60 }, (_, index) => index);
+
+const parseTimeValue = (value) => {
+  if (!value || typeof value !== 'string') {
+    return { hours: 19, minutes: 0 };
+  }
+  const [hoursStr, minutesStr] = value.split(':');
+  const hours = Number.parseInt(hoursStr, 10);
+  const minutes = Number.parseInt(minutesStr, 10);
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) {
+    return { hours: 19, minutes: 0 };
+  }
+  return {
+    hours: Math.min(Math.max(hours, 0), 23),
+    minutes: Math.min(Math.max(minutes, 0), 59),
+  };
+};
+
+const formatTimeString = (hours, minutes) =>
+  `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+
+const formatDateInputValue = (date) =>
+  `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date
+    .getDate()
+    .toString()
+    .padStart(2, '0')}`;
+
+const parseInputDateValue = (value) => {
+  if (!value || typeof value !== 'string') {
+    return null;
+  }
+  const parts = value.split('-').map((segment) => Number.parseInt(segment, 10));
+  if (parts.length !== 3 || parts.some((segment) => Number.isNaN(segment))) {
+    return null;
+  }
+  const [year, month, day] = parts;
+  return new Date(year, month - 1, day);
+};
+
+const stripTime = (date) => {
+  const copy = new Date(date);
+  copy.setHours(0, 0, 0, 0);
+  return copy;
+};
+
+const isSameDay = (first, second) =>
+  stripTime(first).getTime() === stripTime(second).getTime();
+
+const isBeforeDay = (first, second) =>
+  stripTime(first).getTime() < stripTime(second).getTime();
+
+const buildCalendarMatrix = (cursorDate) => {
+  const startOfMonth = new Date(cursorDate.getFullYear(), cursorDate.getMonth(), 1);
+  const totalDays = new Date(cursorDate.getFullYear(), cursorDate.getMonth() + 1, 0).getDate();
+  const firstWeekday = (startOfMonth.getDay() + 6) % 7; // convert Sunday(0) to 6
+
+  const cells = [];
+  for (let i = 0; i < firstWeekday; i += 1) {
+    cells.push(null);
+  }
+  for (let day = 1; day <= totalDays; day += 1) {
+    cells.push(new Date(cursorDate.getFullYear(), cursorDate.getMonth(), day));
+  }
+  while (cells.length % 7 !== 0) {
+    cells.push(null);
+  }
+
+  const weeks = [];
+  for (let i = 0; i < cells.length; i += 7) {
+    weeks.push(cells.slice(i, i + 7));
+  }
+  return weeks;
+};
+
 const API_BASE_URL =
   (process.env.REACT_APP_ADMIN_API_BASE_URL ||
     process.env.REACT_APP_API_BASE_URL ||
@@ -143,6 +220,98 @@ function AdminPanel({ isOpen, onClose }) {
       [name]: value,
     }));
   };
+
+  const parsedEventDate = useMemo(() => parseInputDateValue(form.event_date), [form.event_date]);
+
+  const minEventDate = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
+  }, []);
+
+  const [calendarCursor, setCalendarCursor] = useState(
+    () => stripTime(parsedEventDate || minEventDate)
+  );
+
+  useEffect(() => {
+    setCalendarCursor(stripTime(parsedEventDate || minEventDate));
+  }, [parsedEventDate, minEventDate]);
+
+  const calendarMatrix = useMemo(
+    () => buildCalendarMatrix(calendarCursor),
+    [calendarCursor]
+  );
+
+  const calendarLabel = useMemo(
+    () =>
+      calendarCursor.toLocaleDateString('ru-RU', {
+        month: 'long',
+        year: 'numeric',
+      }),
+    [calendarCursor]
+  );
+
+  const monthIndex = calendarCursor.getFullYear() * 12 + calendarCursor.getMonth();
+  const minMonthIndex = minEventDate.getFullYear() * 12 + minEventDate.getMonth();
+  const isPrevMonthDisabled = monthIndex <= minMonthIndex;
+
+  const handleMonthStep = useCallback(
+    (step) => {
+      setCalendarCursor((prev) => {
+        const updated = new Date(prev.getFullYear(), prev.getMonth() + step, 1);
+        const minMonth = new Date(minEventDate.getFullYear(), minEventDate.getMonth(), 1);
+        return updated < minMonth ? minMonth : updated;
+      });
+    },
+    [minEventDate]
+  );
+
+  const handleDateSelect = useCallback((value) => {
+    setForm((prev) => ({
+      ...prev,
+      event_date: value ? formatDateInputValue(value) : '',
+    }));
+    if (value) {
+      setCalendarCursor(stripTime(value));
+    }
+  }, []);
+
+  const timeParts = useMemo(() => parseTimeValue(form.start_time), [form.start_time]);
+
+  const setTimeFromParts = useCallback((hours, minutes) => {
+    setForm((prev) => ({
+      ...prev,
+      start_time: formatTimeString(hours, minutes),
+    }));
+  }, []);
+
+  const shiftMinutes = useCallback((delta) => {
+    setForm((prev) => {
+      const { hours, minutes } = parseTimeValue(prev.start_time);
+      const totalMinutes = hours * 60 + minutes + delta;
+      const normalized = ((totalMinutes % (24 * 60)) + 24 * 60) % (24 * 60);
+      const nextHours = Math.floor(normalized / 60);
+      const nextMinutes = normalized % 60;
+      return {
+        ...prev,
+        start_time: formatTimeString(nextHours, nextMinutes),
+      };
+    });
+  }, []);
+
+  const handleSetNow = useCallback(() => {
+    const now = new Date();
+    setTimeFromParts(now.getHours(), now.getMinutes());
+  }, [setTimeFromParts]);
+
+  const hourRotation = useMemo(
+    () => ((timeParts.hours % 12) + timeParts.minutes / 60) * 30,
+    [timeParts.hours, timeParts.minutes]
+  );
+  const minuteRotation = useMemo(
+    () => timeParts.minutes * 6,
+    [timeParts.minutes]
+  );
 
   const populateFormFromEvent = useCallback((event) => {
     if (!event) {
@@ -290,13 +459,40 @@ function AdminPanel({ isOpen, onClose }) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setIsSubmitting(true);
     setStatus(null);
+
+    const trimmedName = form.event_name.trim();
+    if (!trimmedName) {
+      setStatus({
+        type: 'error',
+        message: 'Укажите название события, чтобы сохранить изменения.',
+      });
+      return;
+    }
+
+    if (!form.event_date) {
+      setStatus({
+        type: 'error',
+        message: 'Выберите дату проведения события.',
+      });
+      return;
+    }
+
+    const parsedDate = parseInputDateValue(form.event_date);
+    if (!parsedDate || Number.isNaN(parsedDate.getTime())) {
+      setStatus({
+        type: 'error',
+        message: 'Дата события указана в неверном формате.',
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
 
     try {
       const payload = {
-        event_name: form.event_name,
-        event_date: form.event_date ? new Date(form.event_date).toISOString() : null,
+        event_name: trimmedName,
+        event_date: parsedDate.toISOString(),
         start_time: form.start_time || null,
         address: form.address || null,
         details: form.details || null,
@@ -469,110 +665,245 @@ function AdminPanel({ isOpen, onClose }) {
             </div>
           )}
 
-          <label className="admin-panel__field">
-            <span>Название события</span>
-            <input
-              type="text"
-              name="event_name"
-              value={form.event_name}
-              onChange={handleChange}
-              placeholder="Например, «Квиз #125 — Космический»"
-              required
-            />
-          </label>
-
-          <label className="admin-panel__field">
-            <span>Дата события</span>
-            <input
-              type="date"
-              name="event_date"
-              value={form.event_date}
-              onChange={handleChange}
-              required
-            />
-          </label>
-
-          <label className="admin-panel__field">
-            <span>Время начала</span>
-            <input
-              type="time"
-              name="start_time"
-              value={form.start_time}
-              onChange={handleChange}
-              placeholder="19:30"
-            />
-          </label>
-
-          <label className="admin-panel__field">
-            <span>Адрес площадки</span>
-            <input
-              type="text"
-              name="address"
-              value={form.address}
-              onChange={handleChange}
-              placeholder="Бар «Мосты», Кирова 12"
-            />
-          </label>
-
-          <label className="admin-panel__field">
-            <span>Детали / формат</span>
-            <textarea
-              name="details"
-              value={form.details}
-              onChange={handleChange}
-              rows={3}
-              placeholder="Командная игра, 7 раундов по 7 вопросов…"
-            />
-          </label>
-
-          <label className="admin-panel__field">
-            <span>Статус события</span>
-            <select name="status" value={form.status} onChange={handleChange}>
-              <option value="upcoming">Запланировано</option>
-              <option value="completed">Завершено</option>
-            </select>
-          </label>
-
-          <div className="admin-panel__field admin-panel__field--file">
-            <span>Изображение темы</span>
-            <div className="admin-panel__file-controls">
-              <label className="admin-panel__file-button">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleThemeFileChange}
-                  disabled={uploading}
-                />
-                {uploading ? 'Загружаем…' : 'Загрузить файл'}
-              </label>
-              {form.theme_image_url && (
-                <button type="button" className="admin-panel__remove" onClick={handleRemoveTheme}>
-                  Удалить
-                </button>
-              )}
+          <div className="admin-panel__fieldset">
+            <div className="admin-panel__fieldset-head">
+              <p className="admin-panel__fieldset-title">Основные параметры</p>
+              <p className="admin-panel__fieldset-hint">Название, дата и статус вечеринки.</p>
             </div>
-            <p className="admin-panel__file-hint">Поддерживаемые форматы: JPG, PNG. Максимум 5 МБ.</p>
-            {uploadError && <p className="admin-panel__file-error">{uploadError}</p>}
-            {form.theme_image_url && (
-              <figure className="admin-panel__preview">
-                <img src={themePreviewUrl} alt="Превью изображения темы" />
-                <a href={themePreviewUrl} target="_blank" rel="noreferrer">
-                  Открыть в новой вкладке →
-                </a>
-              </figure>
-            )}
+            <div className="admin-panel__grid admin-panel__grid--two">
+              <label className="admin-panel__field admin-panel__field--full">
+                <span>Название события</span>
+                <input
+                  type="text"
+                  name="event_name"
+                  value={form.event_name}
+                  onChange={handleChange}
+                  placeholder="Например, «Квиз #125 — Космический»"
+                  required
+                />
+              </label>
+
+              <label className="admin-panel__field admin-panel__field--calendar">
+                <span>Дата события</span>
+                <div className="admin-panel__calendar">
+                  <div className="admin-panel__calendar-header">
+                    <button
+                      type="button"
+                      className="admin-panel__calendar-nav"
+                      onClick={() => handleMonthStep(-1)}
+                      disabled={isPrevMonthDisabled}
+                      aria-label="Предыдущий месяц"
+                    >
+                      ‹
+                    </button>
+                    <strong>{calendarLabel}</strong>
+                    <button
+                      type="button"
+                      className="admin-panel__calendar-nav"
+                      onClick={() => handleMonthStep(1)}
+                      aria-label="Следующий месяц"
+                    >
+                      ›
+                    </button>
+                  </div>
+                  <div className="admin-panel__calendar-grid admin-panel__calendar-grid--labels">
+                    {WEEKDAY_LABELS.map((label) => (
+                      <span key={label}>{label}</span>
+                    ))}
+                  </div>
+                  <div className="admin-panel__calendar-grid" role="grid">
+                    {calendarMatrix.map((week, weekIndex) =>
+                      week.map((cell, cellIndex) => {
+                        const key = `${weekIndex}-${cellIndex}-${cell ? cell.getDate() : 'empty'}`;
+                        if (!cell) {
+                          return <span key={key} className="admin-panel__calendar-placeholder" />;
+                        }
+                        const disabled = isBeforeDay(cell, minEventDate);
+                        const selected = parsedEventDate && isSameDay(cell, parsedEventDate);
+                        const isToday = isSameDay(cell, minEventDate);
+                        return (
+                          <button
+                            type="button"
+                            key={key}
+                            className={`admin-panel__calendar-day ${
+                              selected ? 'is-selected' : ''
+                            } ${isToday ? 'is-today' : ''}`}
+                            onClick={() => handleDateSelect(cell)}
+                            disabled={disabled}
+                            aria-pressed={selected}
+                          >
+                            {cell.getDate()}
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              </label>
+
+              <label className="admin-panel__field admin-panel__field--time">
+                <span>Время начала</span>
+                <div className="admin-panel__time-field">
+                  <div className="admin-panel__clock">
+                    <div className="admin-panel__clock-face">
+                      <span
+                        className="admin-panel__clock-hand admin-panel__clock-hand--hour"
+                        style={{ '--rotation': `${hourRotation}deg` }}
+                      />
+                      <span
+                        className="admin-panel__clock-hand admin-panel__clock-hand--minute"
+                        style={{ '--rotation': `${minuteRotation}deg` }}
+                      />
+                      {CLOCK_LABELS.map((label, index) => (
+                        <span
+                          key={`mark-${index}`}
+                          className="admin-panel__clock-mark"
+                          style={{ '--rotation': `${index * 30}deg` }}
+                        >
+                          {label}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="admin-panel__time-controls">
+                    <div className="admin-panel__time-selects">
+                      <label>
+                        <span>Часы</span>
+                        <select
+                          value={timeParts.hours}
+                          onChange={(event) =>
+                            setTimeFromParts(Number(event.target.value), timeParts.minutes)
+                          }
+                        >
+                          {HOUR_OPTIONS.map((hour) => (
+                            <option key={hour} value={hour}>
+                              {hour.toString().padStart(2, '0')}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label>
+                        <span>Минуты</span>
+                        <select
+                          value={timeParts.minutes}
+                          onChange={(event) =>
+                            setTimeFromParts(timeParts.hours, Number(event.target.value))
+                          }
+                        >
+                          {MINUTE_OPTIONS.map((minute) => (
+                            <option key={minute} value={minute}>
+                              {minute.toString().padStart(2, '0')}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
+                    <div className="admin-panel__time-quick">
+                      <button type="button" onClick={() => shiftMinutes(-15)}>
+                        −15 мин
+                      </button>
+                      <button type="button" onClick={() => shiftMinutes(15)}>
+                        +15 мин
+                      </button>
+                      <button type="button" onClick={handleSetNow}>
+                        Сейчас
+                      </button>
+                    </div>
+                    <p className="admin-panel__time-preview">
+                      Текущее значение: <strong>{formatTimeString(timeParts.hours, timeParts.minutes)}</strong>
+                    </p>
+                  </div>
+                </div>
+              </label>
+
+              <label className="admin-panel__field">
+                <span>Статус события</span>
+                <select name="status" value={form.status} onChange={handleChange}>
+                  <option value="upcoming">Запланировано</option>
+                  <option value="completed">Завершено</option>
+                </select>
+              </label>
+            </div>
           </div>
 
-          <label className="admin-panel__field">
-            <span>Заметки (видят только организаторы)</span>
-            <textarea
-              name="notes"
-              value={form.notes}
-              onChange={handleChange}
-              rows={2}
-              placeholder="Например: не забыть сертификаты для призёров."
-            />
-          </label>
+          <div className="admin-panel__fieldset">
+            <div className="admin-panel__fieldset-head">
+              <p className="admin-panel__fieldset-title">Локация и описание</p>
+              <p className="admin-panel__fieldset-hint">Где встречаемся и какой формат ждёт игроков.</p>
+            </div>
+            <div className="admin-panel__grid admin-panel__grid--two">
+              <label className="admin-panel__field admin-panel__field--full">
+                <span>Адрес площадки</span>
+                <input
+                  type="text"
+                  name="address"
+                  value={form.address}
+                  onChange={handleChange}
+                  placeholder="Бар «Мосты», Кирова 12"
+                />
+              </label>
+
+              <label className="admin-panel__field admin-panel__field--full">
+                <span>Детали / формат</span>
+                <textarea
+                  name="details"
+                  value={form.details}
+                  onChange={handleChange}
+                  rows={3}
+                  placeholder="Командная игра, 7 раундов по 7 вопросов…"
+                />
+              </label>
+            </div>
+          </div>
+
+          <div className="admin-panel__fieldset">
+            <div className="admin-panel__fieldset-head">
+              <p className="admin-panel__fieldset-title">Материалы и заметки</p>
+              <p className="admin-panel__fieldset-hint">Добавьте визуал и приватные комментарии для команды.</p>
+            </div>
+            <div className="admin-panel__grid admin-panel__grid--two">
+              <div className="admin-panel__field admin-panel__field--file admin-panel__field--full">
+                <span>Изображение темы</span>
+                <div className="admin-panel__file-controls">
+                  <label className="admin-panel__file-button">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleThemeFileChange}
+                      disabled={uploading}
+                    />
+                    {uploading ? 'Загружаем…' : 'Загрузить файл'}
+                  </label>
+                  {form.theme_image_url && (
+                    <button type="button" className="admin-panel__remove" onClick={handleRemoveTheme}>
+                      Удалить
+                    </button>
+                  )}
+                </div>
+                <p className="admin-panel__file-hint">Поддерживаемые форматы: JPG, PNG. Максимум 5 МБ.</p>
+                {uploadError && <p className="admin-panel__file-error">{uploadError}</p>}
+                {form.theme_image_url && (
+                  <figure className="admin-panel__preview">
+                    <img src={themePreviewUrl} alt="Превью изображения темы" />
+                    <a href={themePreviewUrl} target="_blank" rel="noreferrer">
+                      Открыть в новой вкладке →
+                    </a>
+                  </figure>
+                )}
+              </div>
+
+              <label className="admin-panel__field admin-panel__field--full">
+                <span>Заметки (видят только организаторы)</span>
+                <textarea
+                  name="notes"
+                  value={form.notes}
+                  onChange={handleChange}
+                  rows={2}
+                  placeholder="Например: не забыть сертификаты для призёров."
+                />
+              </label>
+            </div>
+          </div>
 
           {status && (
             <div className={`admin-panel__status admin-panel__status--${status.type}`}>

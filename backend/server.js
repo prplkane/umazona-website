@@ -5,17 +5,81 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const nodemailer = require('nodemailer');
 
 const app = express();
 const db = require('./database.js');
 const { startWatcher } = require('./utils/csvWatcher.js');
 
+const CLEANUP_INTERVAL_MS = 60 * 60 * 1000;
 // Google Drive and game mapping utilities
 const { getPhotosByGame, discoverGameFolders, discoverSubfolders, getCacheStatus, clearFolderCache } = require('./utils/googleDriveService.js');
 const { initializeGameMapping, getGameFolderId, getAvailableGames, getGameMapping } = require('./utils/gameConfig.js');
 
 const PORT = process.env.PORT || 3000;
 const ADMIN_TOKEN = process.env.ADMIN_API_TOKEN;
+const HIRE_SUBJECT = 'Новый запрос на корпоративную игру';
+const CONTACT_RECIPIENTS = (
+  process.env.CONTACT_RECIPIENTS ||
+  'letterforkate@gmail.com,daria.belkina@gmail.com,eugeniashpunt55@gmail.com'
+)
+  .split(',')
+  .map((email) => email.trim())
+  .filter(Boolean);
+
+const createContactTransporter = () => {
+  if (!process.env.SMTP_HOST) {
+    console.warn('SMTP_HOST is not configured. Contact form submissions will not be emailed.');
+    return null;
+  }
+
+  try {
+    return nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT || 465),
+      secure: process.env.SMTP_SECURE !== 'false',
+      auth:
+        process.env.SMTP_USER && process.env.SMTP_PASS
+          ? {
+              user: process.env.SMTP_USER,
+              pass: process.env.SMTP_PASS,
+            }
+          : undefined,
+    });
+  } catch (error) {
+    console.error('Failed to configure SMTP transporter for contact form:', error.message);
+    return null;
+  }
+};
+
+let contactTransporter = createContactTransporter();
+
+const sendContactEmail = async ({ name, email, phone, message }) => {
+  if (!contactTransporter || CONTACT_RECIPIENTS.length === 0) {
+    return;
+  }
+
+  const fromAddress = process.env.SMTP_FROM || process.env.SMTP_USER || 'no-reply@umazona.ru';
+  const text = [
+    `Имя: ${name}`,
+    `Email: ${email}`,
+    `Телефон: ${phone || 'не указан'}`,
+    '',
+    'Комментарий:',
+    message || '(без сообщения)',
+  ].join('\n');
+
+  try {
+    await contactTransporter.sendMail({
+      from: fromAddress,
+      to: CONTACT_RECIPIENTS,
+      subject: `Новая бронь стола от ${name}`,
+      text,
+    });
+  } catch (error) {
+    console.error('Failed to send contact form email:', error.message);
+  }
+};
 
 const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
@@ -59,6 +123,31 @@ const upload = multer({
 app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(uploadsRoot));
+
+const cleanupOldEvents = () => {
+  const sql = `
+    DELETE FROM events
+    WHERE (status IS NOT NULL AND LOWER(status) = 'completed')
+       OR (
+         event_date IS NOT NULL
+         AND datetime(event_date) < datetime('now', '-1 day')
+       )
+  `;
+
+  db.run(sql, [], function (err) {
+    if (err) {
+      console.error('Failed to cleanup past events:', err.message);
+      return;
+    }
+
+    if (this.changes > 0) {
+      console.log(`Cleaned up ${this.changes} past/completed events.`);
+    }
+  });
+};
+
+cleanupOldEvents();
+setInterval(cleanupOldEvents, CLEANUP_INTERVAL_MS);
 
 const verifyAdmin = (req, res, next) => {
     if (!ADMIN_TOKEN) {
@@ -346,31 +435,34 @@ app.delete('/api/admin/events/:id', verifyAdmin, (req, res) => {
 });
 
 app.post('/api/contacts', (req, res) => {
-    const { name, phone, email, message } = req.body
+    const { name, phone, email, message } = req.body || {};
     if (!name || !email) {
-        return res.status(400).json({ error: "Name and Email are required fields." })
+        return res.status(400).json({ error: 'Name and Email are required fields.' });
     }
+
     const sql = `INSERT INTO contacts (name, phone, email, message) 
                  VALUES (?, ?, ?, ?)`;
     const params = [name, phone, email, message];
 
     db.run(sql, params, function (err) {
         if (err) {
-            console.error(err.message)
-            return res.status(500).json({ error: "An error occurred while saving the contact." })
+            console.error('Failed to save contact:', err.message);
+            return res.status(500).json({ error: 'An error occurred while saving the contact.' });
         }
-        res.status(201).json({
-            message: "Contact saved successfully.", data: { id: this.lastID, name: name, email: email }
-        })
-    })
-})
 
+        const payload = { id: this.lastID, name, email };
+        res.status(201).json({ message: 'Contact saved successfully.', data: payload });
+
+        Promise.resolve(sendContactEmail({ name, email, phone, message })).catch(() => {});
+    });
+});
+    
 app.get('/api/events', (_req, res) => {
+    cleanupOldEvents();
     const sql = `
         SELECT *
         FROM events
-        WHERE (status IS NULL OR status != 'completed')
-          AND datetime(event_date) >= datetime('now', '-1 day')
+        WHERE (status IS NULL OR LOWER(status) != 'completed')
         ORDER BY datetime(event_date) ASC
     `;
     db.all(sql, [], (err, rows) => {

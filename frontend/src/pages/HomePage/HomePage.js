@@ -9,6 +9,7 @@ import Extras from './components/Extras/Extras.js';
 import Hero from './components/Hero/Hero.js';
 import Events from './components/Events/Events.js';
 import ContactForm from './components/ContactForm/ContactForm.js';
+import HireForm from './components/HireForm/HireForm.js';
 
 function HomePage() {
   // All this data-fetching logic belongs on the HomePage
@@ -16,6 +17,7 @@ function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [reservationOpen, setReservationOpen] = useState(false);
+  const [hireOpen, setHireOpen] = useState(false);
   const [reservationDetails, setReservationDetails] = useState({
     eventName: '',
     eventDate: '',
@@ -73,17 +75,26 @@ function HomePage() {
           if (!event.event_date) {
             return false;
           }
+
           const parsed = new Date(event.event_date);
           if (Number.isNaN(parsed.getTime())) {
-            return false;
+            // Keep events with manual date strings so they still show up in the list.
+            return true;
           }
+
           return parsed >= dayAgo;
         })
         .map((event) => ({
           ...event,
           theme_image_url: resolveMediaUrl(event.theme_image_url),
         }))
-        .sort((a, b) => new Date(a.event_date) - new Date(b.event_date));
+        .sort((a, b) => {
+          const dateA = new Date(a.event_date);
+          const dateB = new Date(b.event_date);
+          const timeA = Number.isNaN(dateA.getTime()) ? Infinity : dateA.getTime();
+          const timeB = Number.isNaN(dateB.getTime()) ? Infinity : dateB.getTime();
+          return timeA - timeB;
+        });
 
       setEvents(normalized);
       setError(null);
@@ -123,8 +134,14 @@ function HomePage() {
     };
 
     window.addEventListener('events:reserve', handleReservation);
+    const handleHire = () => {
+      setHireOpen(true);
+    };
+
+    window.addEventListener('extras:hire', handleHire);
     return () => {
       window.removeEventListener('events:reserve', handleReservation);
+      window.removeEventListener('extras:hire', handleHire);
     };
   }, []);
 
@@ -135,6 +152,10 @@ function HomePage() {
       eventDate: '',
       eventId: null,
     });
+  }, []);
+
+  const handleHireClose = useCallback(() => {
+    setHireOpen(false);
   }, []);
 
   if (loading) {
@@ -167,6 +188,7 @@ function HomePage() {
         eventName={reservationDetails.eventName}
         eventDate={reservationDetails.eventDate}
       />
+      <HireForm isOpen={hireOpen} onClose={handleHireClose} />
     </>
   );
 }

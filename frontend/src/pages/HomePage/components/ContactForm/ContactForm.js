@@ -113,68 +113,93 @@ function ContactForm({ isOpen, onClose, eventName, eventDate }) {
         <button type="button" className="contact-modal__close" onClick={onClose} aria-label="Закрыть форму">
           ×
         </button>
+
         <header className="contact-modal__header">
           <span className="contact-modal__eyebrow">Reserve a Table</span>
-          <h3>Забронируйте место для команды</h3>
-          {eventName && (
-            <p className="contact-modal__summary">
-              {eventName}
-              {eventDate ? ` · ${eventDate}` : ''}
-            </p>
-          )}
+          <h3>Забронируйте место для своей команды</h3>
+          <p className="contact-modal__subtitle">
+            Расскажите нам о команде и формате — мы подтвердим бронь, подберём комфортный стол и напомним о старте.
+          </p>
+          <div className="contact-modal__chips">
+            {eventName && <span className="contact-modal__chip">{eventName}</span>}
+            {eventDate && <span className="contact-modal__chip">{eventDate}</span>}
+            <span className="contact-modal__chip contact-modal__chip--soft">Команды до 10 игроков</span>
+          </div>
         </header>
 
-        <form onSubmit={handleSubmit} className="contact-form">
-          {responseMsg && (
-            <div className={responseMsg.success ? 'msg-success' : 'msg-error'}>{responseMsg.text}</div>
-          )}
+        <div className="contact-modal__body">
+          <section className="contact-modal__details">
+            <p>
+              Мы перезвоним или напишем в течение рабочего дня, уточним состав команды и закрепим бронь. Если у вас
+              приватное событие — соберём индивидуальный пакет.
+            </p>
+            <ul className="contact-modal__highlights">
+              <li>Ведём лист ожидания и помогаем подобрать ближайшую дату.</li>
+              <li>Финальное подтверждение и напоминание приходят на почту.</li>
+              <li>Можно указать технические пожелания: проектор, подарки, ведущий.</li>
+            </ul>
+          </section>
 
-          <div className="form-group">
-            <label htmlFor="name">Имя (обязательно)</label>
-            <input
-              type="text"
-              id="name"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              required
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="contact-form">
+            {responseMsg && (
+              <div className={responseMsg.success ? 'msg-success' : 'msg-error'}>{responseMsg.text}</div>
+            )}
 
-          <div className="form-group">
-            <label htmlFor="email">Email (обязательно)</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-            />
-          </div>
+            <div className="contact-form__grid">
+              <div className="form-group form-group--half">
+                <label htmlFor="name">Имя (обязательно)</label>
+                <input
+                  type="text"
+                  id="name"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  required
+                />
+              </div>
 
-          <div className="form-group">
-            <label htmlFor="phone">Телефон (опционально)</label>
-            <input
-              type="tel"
-              id="phone"
-              value={phone}
-              onChange={(event) => setPhone(event.target.value)}
-            />
-          </div>
+              <div className="form-group form-group--half">
+                <label htmlFor="email">Email (обязательно)</label>
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  required
+                />
+              </div>
 
-          <div className="form-group">
-            <label htmlFor="message">Комментарий</label>
-            <textarea
-              id="message"
-              value={message}
-              onChange={(event) => setMessage(event.target.value)}
-              rows="5"
-            />
-          </div>
+              <div className="form-group form-group--half">
+                <label htmlFor="phone">Телефон (опционально)</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  value={phone}
+                  onChange={(event) => setPhone(event.target.value)}
+                />
+              </div>
 
-          <button type="submit" disabled={loading}>
-            {loading ? 'Отправляем...' : 'Отправить заявку'}
-          </button>
-        </form>
+              <div className="form-group form-group--full">
+                <label htmlFor="message">Комментарий</label>
+                <textarea
+                  id="message"
+                  value={message}
+                  onChange={(event) => setMessage(event.target.value)}
+                  rows="5"
+                />
+              </div>
+            </div>
+
+            <div className="contact-form__actions">
+              <p className="contact-form__note">
+                Отправляя заявку, вы соглашаетесь с обработкой данных. Письмо сразу получают Катя, Дарья и Евгения —
+                организаторы УмAZоны, и отвечают в течение рабочего дня.
+              </p>
+              <button type="submit" disabled={loading}>
+                {loading ? 'Отправляем…' : 'Отправить заявку'}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

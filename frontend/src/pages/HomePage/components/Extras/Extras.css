@@ -1,9 +1,17 @@
 .extras-section {
   position: relative;
   padding: clamp(80px, 12vw, 130px) clamp(20px, 6vw, 70px);
-  background: radial-gradient(circle at 5% 10%, rgba(116, 205, 255, 0.25), transparent 55%),
-    radial-gradient(circle at 95% 15%, rgba(169, 127, 255, 0.18), transparent 60%),
-    rgba(1, 17, 55, 0.65);
+  background: var(--color-section-gradient);
+  overflow: hidden;
+}
+
+.extras-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 16% 16%, rgba(47, 94, 229, 0.08), transparent 58%),
+    var(--color-section-highlight);
+  pointer-events: none;
 }
 
 .extras-wrapper {
@@ -11,6 +19,8 @@
   margin: 0 auto;
   display: grid;
   gap: clamp(36px, 6vw, 60px);
+  position: relative;
+  z-index: 1;
 }
 
 .extras-header {
@@ -24,7 +34,7 @@
   font-size: 0.85rem;
   letter-spacing: 0.32em;
   text-transform: uppercase;
-  color: rgba(179, 214, 255, 0.75);
+  color: var(--color-text-muted);
   margin-bottom: 16px;
 }
 
@@ -33,19 +43,19 @@
   display: inline-block;
   width: 52px;
   height: 2px;
-  background: rgba(179, 214, 255, 0.4);
+  background: var(--color-border-soft);
 }
 
 .extras-header h2 {
   margin: 0 0 16px;
   font-size: clamp(2.1rem, 4vw, 3rem);
-  color: #f4f7ff;
+  color: var(--color-text-strong);
 }
 
 .extras-header p {
   margin: 0;
   font-size: clamp(1rem, 2.6vw, 1.2rem);
-  color: rgba(200, 221, 255, 0.82);
+  color: var(--color-text-muted);
   line-height: 1.7;
 }
 
@@ -57,37 +67,37 @@
 }
 
 .extras-card {
-  --extras-accent: #7fceff;
+  --extras-accent: #2f5ee5;
   position: relative;
   display: flex;
   flex-direction: column;
   gap: clamp(16px, 3vw, 22px);
   padding: clamp(26px, 3.5vw, 36px);
   border-radius: 34px;
-  background: rgba(5, 22, 70, 0.78);
-  border: 1px solid rgba(124, 191, 255, 0.2);
-  box-shadow: 0 24px 60px rgba(4, 20, 58, 0.42);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  box-shadow: var(--color-shadow-soft);
   text-decoration: none;
-  color: #f4f7ff;
+  color: var(--color-text-strong);
   overflow: hidden;
   min-height: clamp(240px, 26vw, 320px);
   transition: transform 0.25s ease, box-shadow 0.3s ease, border-color 0.25s ease;
 }
 
 .extras-card[data-accent='gallery'] {
-  --extras-accent: #78e6ff;
+  --extras-accent: #6ea6ff;
 }
 
 .extras-card[data-accent='archive'] {
-  --extras-accent: #cbb6ff;
+  --extras-accent: #a6b7ff;
 }
 
 .extras-card[data-accent='play'] {
-  --extras-accent: #8bffbf;
+  --extras-accent: #5ac99f;
 }
 
 .extras-card[data-accent='hire'] {
-  --extras-accent: #ffd36f;
+  --extras-accent: #f3c172;
 }
 
 .extras-card::before {
@@ -96,23 +106,24 @@
   inset: -40% -20% auto;
   height: 75%;
   background: linear-gradient(135deg, var(--extras-accent), rgba(255, 255, 255, 0));
-  opacity: 0.16;
+  opacity: 0.08;
   transform: rotate(-8deg);
   pointer-events: none;
 }
 
 .extras-card:hover {
   transform: translateY(-10px) scale(1.01);
-  border-color: rgba(140, 223, 255, 0.55);
-  box-shadow: 0 40px 80px rgba(6, 28, 74, 0.55);
+  border-color: rgba(32, 118, 220, 0.28);
+  box-shadow: 0 32px 70px rgba(19, 52, 112, 0.24);
 }
 
 .extras-card--interactive {
   cursor: pointer;
-  background: rgba(5, 22, 70, 0.78);
+  background: var(--color-surface);
   text-align: left;
   font: inherit;
   padding: clamp(28px, 4vw, 40px);
+  border: none;
 }
 
 .extras-card--interactive:focus-visible {
@@ -133,9 +144,9 @@
   display: grid;
   place-items: center;
   font-size: 2.2rem;
-  background: radial-gradient(circle at 25% 20%, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0));
-  color: #0f2a62;
-  box-shadow: 0 14px 28px rgba(12, 60, 140, 0.35);
+  background: radial-gradient(circle at 25% 20%, rgba(255, 255, 255, 0.95), rgba(126, 214, 255, 0.25));
+  color: var(--color-text-strong);
+  box-shadow: 0 14px 28px rgba(73, 152, 226, 0.15);
 }
 
 .extras-badge {
@@ -146,9 +157,9 @@
   font-size: 0.75rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  background: rgba(124, 191, 255, 0.18);
-  color: rgba(196, 219, 255, 0.88);
-  backdrop-filter: blur(6px);
+  background: rgba(47, 94, 229, 0.08);
+  color: var(--color-text-muted);
+  backdrop-filter: blur(4px);
 }
 
 .extras-badge--soon {
@@ -159,21 +170,21 @@
 .extras-card h3 {
   margin: 0;
   font-size: clamp(1.4rem, 3vw, 1.85rem);
-  color: #f6f9ff;
+  color: var(--color-text-strong);
 }
 
 .extras-card p {
   margin: 0;
   font-size: 1rem;
   line-height: 1.7;
-  color: rgba(204, 223, 255, 0.85);
+  color: var(--color-text-muted);
 }
 
 .extras-link {
   margin-top: auto;
   font-weight: 600;
   font-size: 0.95rem;
-  color: var(--extras-accent);
+  color: var(--color-accent);
 }
 
 .extras-card:hover .extras-link {
@@ -192,9 +203,9 @@
   overflow: hidden;
   border-radius: 34px;
   min-height: clamp(220px, 30vw, 400px);
-  background: rgba(5, 18, 52, 0.58);
-  border: 1px solid rgba(124, 191, 255, 0.22);
-  box-shadow: 0 28px 80px rgba(4, 20, 58, 0.5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  box-shadow: var(--color-shadow-soft);
 }
 
 .extras-gallery-panel img {

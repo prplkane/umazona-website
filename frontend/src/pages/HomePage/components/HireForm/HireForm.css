@@ -1,4 +1,4 @@
-.contact-modal-overlay {
+.hire-modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(13, 24, 56, 0.58);
@@ -11,9 +11,9 @@
   overflow-y: auto;
 }
 
-.contact-modal {
+.hire-modal {
   position: relative;
-  width: min(780px, 100%);
+  width: min(820px, 100%);
   border-radius: 30px;
   background: linear-gradient(135deg, #ffffff 0%, #f5f8ff 60%, #eef2fb 100%);
   border: 1px solid rgba(26, 62, 126, 0.12);
@@ -26,60 +26,60 @@
   margin: 0 auto clamp(24px, 4vw, 36px);
 }
 
-.contact-modal__close {
+.hire-modal__close {
   position: absolute;
   top: clamp(16px, 2vw, 24px);
   right: clamp(16px, 2vw, 24px);
   width: 44px;
   height: 44px;
   border-radius: 16px;
-  border: 1px solid rgba(20, 41, 89, 0.08);
-  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(20, 41, 89, 0.12);
+  background: rgba(255, 255, 255, 0.85);
   color: var(--color-text-strong);
   font-size: 1.4rem;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.2s ease;
 }
 
-.contact-modal__close:hover,
-.contact-modal__close:focus-visible {
-  background: rgba(255, 255, 255, 1);
+.hire-modal__close:hover,
+.hire-modal__close:focus-visible {
+  background: #ffffff;
   transform: translateY(-2px);
 }
 
-.contact-modal__header {
+.hire-modal__header {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.contact-modal__eyebrow {
+.hire-modal__eyebrow {
   letter-spacing: 0.32em;
   text-transform: uppercase;
   font-size: 0.72rem;
   color: rgba(20, 41, 89, 0.5);
 }
 
-.contact-modal__header h3 {
+.hire-modal__header h3 {
   margin: 0;
   font-size: clamp(1.8rem, 3vw, 2.4rem);
   color: var(--color-text-strong);
 }
 
-.contact-modal__subtitle {
+.hire-modal__header p {
   margin: 0;
   font-size: 1rem;
   color: var(--color-text-muted);
   line-height: 1.6;
 }
 
-.contact-modal__chips {
+.hire-modal__chips {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
 }
 
-.contact-modal__chip {
+.hire-modal__chip {
   padding: 8px 14px;
   border-radius: 999px;
   background: rgba(47, 94, 229, 0.08);
@@ -88,39 +88,12 @@
   color: var(--color-text-strong);
 }
 
-.contact-modal__chip--soft {
+.hire-modal__chip--soft {
   background: rgba(113, 214, 171, 0.15);
   border-color: rgba(113, 214, 171, 0.3);
 }
 
-.contact-modal__body {
-  display: grid;
-  gap: clamp(18px, 4vw, 28px);
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-}
-
-.contact-modal__details {
-  padding: clamp(18px, 3vw, 24px);
-  border-radius: 24px;
-  background: rgba(239, 246, 255, 0.9);
-  border: 1px solid rgba(20, 41, 89, 0.08);
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  color: var(--color-text-strong);
-  line-height: 1.6;
-}
-
-.contact-modal__highlights {
-  margin: 0;
-  padding-left: 20px;
-  color: var(--color-text-muted);
-  display: grid;
-  gap: 8px;
-  font-size: 0.95rem;
-}
-
-.contact-form {
+.hire-form {
   padding: clamp(18px, 3vw, 26px);
   border-radius: 24px;
   background: #ffffff;
@@ -131,30 +104,31 @@
   gap: 18px;
 }
 
-.contact-form__grid {
+.hire-form__grid {
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 16px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.form-group {
-  display: grid;
+.hire-form__group {
+  display: flex;
+  flex-direction: column;
   gap: 8px;
 }
 
-.form-group label {
+.hire-form__group span {
   font-size: 0.78rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(20, 41, 89, 0.6);
+  color: rgba(20, 41, 89, 0.55);
 }
 
-.form-group--full {
-  grid-column: 1 / -1;
+.hire-form__group--full {
+  width: 100%;
 }
 
-.form-group input,
-.form-group textarea {
+.hire-form__group input,
+.hire-form__group textarea {
   width: 100%;
   padding: 14px 16px;
   border: 1px solid rgba(20, 41, 89, 0.12);
@@ -165,20 +139,21 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   resize: vertical;
   min-height: 48px;
+  box-shadow: inset 0 2px 6px rgba(14, 26, 58, 0.06);
 }
 
-.form-group textarea {
-  min-height: 120px;
+.hire-form__group textarea {
+  min-height: 140px;
 }
 
-.form-group input:focus-visible,
-.form-group textarea:focus-visible {
+.hire-form__group input:focus-visible,
+.hire-form__group textarea:focus-visible {
   outline: none;
   border-color: rgba(47, 94, 229, 0.55);
   box-shadow: 0 0 0 3px rgba(47, 94, 229, 0.18);
 }
 
-.contact-form__actions {
+.hire-form__actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -186,14 +161,14 @@
   flex-wrap: wrap;
 }
 
-.contact-form__note {
+.hire-form__note {
   margin: 0;
   color: rgba(20, 41, 89, 0.65);
   font-size: 0.9rem;
   flex: 1;
 }
 
-.contact-form button {
+.hire-form button {
   padding: 14px 26px;
   border-radius: 18px;
   border: none;
@@ -207,75 +182,67 @@
   box-shadow: 0 18px 32px rgba(47, 94, 229, 0.35);
 }
 
-.contact-form button:hover,
-.contact-form button:focus-visible {
+.hire-form button:hover,
+.hire-form button:focus-visible {
   transform: translateY(-2px);
   box-shadow: 0 24px 44px rgba(47, 94, 229, 0.45);
 }
 
-.contact-form button:disabled {
+.hire-form button:disabled {
   opacity: 0.65;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
-.msg-success,
-.msg-error {
+.hire-msg {
   padding: 12px 16px;
   border-radius: 14px;
   font-size: 0.95rem;
 }
 
-.msg-success {
+.hire-msg--success {
   background: rgba(80, 204, 154, 0.15);
   border: 1px solid rgba(80, 204, 154, 0.35);
   color: rgba(15, 86, 57, 0.9);
 }
 
-.msg-error {
+.hire-msg--error {
   background: rgba(255, 155, 155, 0.18);
   border: 1px solid rgba(255, 155, 155, 0.38);
   color: rgba(122, 28, 28, 0.95);
 }
 
 @media (max-width: 720px) {
-  .contact-modal {
-    width: min(520px, 100%);
+  .hire-modal {
+    width: min(540px, 100%);
     border-radius: 24px;
     padding: 26px 22px 30px;
   }
 
-  .contact-modal__body {
-    grid-template-columns: 1fr;
-  }
-
-  .contact-form__grid {
-    grid-template-columns: 1fr;
-  }
-
-  .contact-form__actions {
+  .hire-form__actions {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .contact-form button {
+  .hire-form button {
     width: 100%;
     justify-content: center;
   }
 }
 
 @media (max-width: 520px) {
-  .contact-modal {
+  .hire-modal {
     border-radius: 20px;
     padding: 24px 20px 28px;
   }
 
-  .contact-modal__chips {
+  .hire-modal__chips {
     gap: 8px;
   }
 
-  .contact-form__note {
+  .hire-form__note {
     font-size: 0.82rem;
   }
 }
+

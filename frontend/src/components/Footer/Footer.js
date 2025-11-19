@@ -60,13 +60,19 @@ function Footer() {
             <a href="#next-games">Schedule &amp; Tickets</a>
             <a href="#gallery">Gallery</a>
             <a href="#extras">Mock Game</a>
-            <a href="/members">Hire УмAZона</a>
+            <button
+              type="button"
+              className="footer-link-button"
+              onClick={() => window.dispatchEvent(new CustomEvent('extras:hire'))}
+            >
+              Hire УмAZона
+            </button>
           </div>
           <div className="footer-column">
             <h4>Contact</h4>
-            <p>+7 (555) 123-4567</p>
+            <p>+1 (415) 555-6420</p>
             <p>hello@umazona.com</p>
-            <p>Sochi · Moscow · Remote</p>
+            <p>New York · Los Angeles · Remote</p>
           </div>
         </div>
       </div>
@@ -74,8 +80,14 @@ function Footer() {
       <div className="footer-bottom">
         <p>&copy; {currentYear} УмAZона. Crafted for unforgettable quiz nights.</p>
         <div className="footer-bottom-links">
+          <button
+            type="button"
+            className="footer-link-button"
+            onClick={() => window.dispatchEvent(new CustomEvent('extras:hire'))}
+          >
+            Book a private game
+          </button>
           <a href="#gallery">Gallery</a>
-          <a href="/members">Book a private game</a>
         </div>
       </div>
     </footer>
