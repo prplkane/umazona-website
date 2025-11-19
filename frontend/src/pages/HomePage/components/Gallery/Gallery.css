@@ -207,3 +207,19 @@
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   }
 }
+
+.album-drive-link {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #e5e5e5;
+  color: #333;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: background 0.2s ease;
+}
+
+.album-drive-link:hover {
+  background: #d0d0d0;
+}

@@ -12,6 +12,9 @@ const db = require('./database.js');
 const { startWatcher } = require('./utils/csvWatcher.js');
 
 const CLEANUP_INTERVAL_MS = 60 * 60 * 1000;
+// Google Drive and game mapping utilities
+const { getPhotosByGame, discoverGameFolders, discoverSubfolders, getCacheStatus, clearFolderCache } = require('./utils/googleDriveService.js');
+const { initializeGameMapping, getGameFolderId, getAvailableGames, getGameMapping } = require('./utils/gameConfig.js');
 
 const PORT = process.env.PORT || 3000;
 const ADMIN_TOKEN = process.env.ADMIN_API_TOKEN;
@@ -82,39 +85,39 @@ const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
     process.env.GOOGLE_REDIRECT_URI
-  );
-  
-  if (process.env.GOOGLE_REFRESH_TOKEN) {
+);
+
+if (process.env.GOOGLE_REFRESH_TOKEN) {
     oauth2Client.setCredentials({
-      refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
+        refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
     });
-  }
-  
-  const DRIVE_SCOPES = ['https://www.googleapis.com/auth/drive.readonly'];
+}
+
+const DRIVE_SCOPES = ['https://www.googleapis.com/auth/drive.readonly'];
 
 const uploadsRoot = path.join(__dirname, 'uploads');
 const themesUploadDir = path.join(uploadsRoot, 'themes');
 
 
 if (!fs.existsSync(themesUploadDir)) {
-  fs.mkdirSync(themesUploadDir, { recursive: true });
+    fs.mkdirSync(themesUploadDir, { recursive: true });
 }
 
 const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, themesUploadDir);
-  },
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname) || '.png';
-    const baseName = path.basename(file.originalname, ext).replace(/[^a-z0-9]+/gi, '-').toLowerCase();
-    const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    cb(null, `${baseName || 'theme'}-${unique}${ext}`);
-  },
+    destination: (_req, _file, cb) => {
+        cb(null, themesUploadDir);
+    },
+    filename: (_req, file, cb) => {
+        const ext = path.extname(file.originalname) || '.png';
+        const baseName = path.basename(file.originalname, ext).replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+        const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+        cb(null, `${baseName || 'theme'}-${unique}${ext}`);
+    },
 });
 
 const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
+    storage,
+    limits: { fileSize: 5 * 1024 * 1024 },
 });
 
 app.use(cors());
@@ -147,65 +150,61 @@ cleanupOldEvents();
 setInterval(cleanupOldEvents, CLEANUP_INTERVAL_MS);
 
 const verifyAdmin = (req, res, next) => {
-  if (!ADMIN_TOKEN) {
+    if (!ADMIN_TOKEN) {
+        return next();
+    }
+    const providedToken = req.get('x-admin-token');
+    if (providedToken !== ADMIN_TOKEN) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
     return next();
-  }
-  const providedToken = req.get('x-admin-token');
-  if (providedToken !== ADMIN_TOKEN) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-  return next();
 };
 
-//APIS
-app.get('/', (req, res) => {
-  res.send('Hello from the backend!');
-});
-
+// APIS
 app.get('/auth/google', (req, res) => {
     const url = oauth2Client.generateAuthUrl({
-      access_type: 'offline',   // important: gives refresh_token
-      scope: DRIVE_SCOPES,
-      prompt: 'consent',        // forces consent so we actually get a refresh_token
+        access_type: 'offline',   // important: gives refresh_token
+        scope: DRIVE_SCOPES,
+        prompt: 'consent',        // forces consent so we actually get a refresh_token
     });
-  
-    res.redirect(url);
-  });
 
-  app.get('/oauth2callback', async (req, res) => {
+    res.redirect(url);
+});
+
+app.get('/oauth2callback', async (req, res) => {
     const code = req.query.code;
     if (!code) {
-      return res.status(400).send('Missing "code" parameter.');
+        return res.status(400).send('Missing "code" parameter.');
     }
-  
+
     try {
-      const { tokens } = await oauth2Client.getToken(code);
-      // tokens will contain access_token, refresh_token, expiry_date, etc.
-      console.log('Google OAuth tokens:', tokens);
-  
-      // You can store it anywhere secure. For quick dev, write to a local file:
-      fs.writeFileSync(
-        path.join(__dirname, 'google-tokens.json'),
-        JSON.stringify(tokens, null, 2)
-      );
-  
-      res.send('Authorization successful. You can close this window now.');
+        const { tokens } = await oauth2Client.getToken(code);
+        // tokens will contain access_token, refresh_token, expiry_date, etc.
+        console.log('Google OAuth tokens:', tokens);
+
+        // You can store it anywhere secure. For quick dev, write to a local file:
+        fs.writeFileSync(
+            path.join(__dirname, 'google-tokens.json'),
+            JSON.stringify(tokens, null, 2)
+        );
+
+        res.send('Authorization successful. You can close this window now.');
     } catch (err) {
-      console.error('Error exchanging code for tokens:', err);
-      res.status(500).send('Failed to get tokens. Check server logs.');
+        console.error('Error exchanging code for tokens:', err);
+        res.status(500).send('Failed to get tokens. Check server logs.');
     }
-  });
+});
 
 app.post('/api/admin/upload-theme', verifyAdmin, upload.single('theme'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'Файл не получен.' });
-  }
+    if (!req.file) {
+        return res.status(400).json({ error: 'Файл не получен.' });
+    }
 
-  const relativePath = `/uploads/themes/${req.file.filename}`;
-  return res.status(201).json({
-    message: 'Изображение загружено.',
-    url: relativePath,
-  });
+    const relativePath = `/uploads/themes/${req.file.filename}`;
+    return res.status(201).json({
+        message: 'Изображение загружено.',
+        url: relativePath,
+    });
 });
 
 app.post('/api/admin/next-game', verifyAdmin, (req, res) => {
@@ -444,7 +443,7 @@ app.post('/api/contacts', (req, res) => {
     const sql = `INSERT INTO contacts (name, phone, email, message) 
                  VALUES (?, ?, ?, ?)`;
     const params = [name, phone, email, message];
-    
+
     db.run(sql, params, function (err) {
         if (err) {
             console.error('Failed to save contact:', err.message);
@@ -469,7 +468,7 @@ app.get('/api/events', (_req, res) => {
     db.all(sql, [], (err, rows) => {
         if (err) {
             console.error(err.message)
-            return res.status(500).json({error: "An error occurred while retrieving events."})
+            return res.status(500).json({ error: "An error occurred while retrieving events." })
         }
         res.status(200).json({
             message: 'Events retrieved successfully.',
@@ -478,9 +477,274 @@ app.get('/api/events', (_req, res) => {
     })
 })
 
+app.get('/api/photos', async (req, res) => {
+    try {
+        const { game, folderId } = req.query;
+
+        // If a folderId is supplied, fetch directly from that Drive folder (more robust)
+        if (folderId) {
+            try {
+                const gsvc = require('./utils/googleDriveService.js');
+                const { getPhotosFromFolder, initializeDrive } = gsvc;
+                const { files, titlePhoto } = await getPhotosFromFolder(folderId);
+                // try to fetch folder metadata (name) for better client display
+                let folderName = null;
+                try {
+                    const drive = await initializeDrive();
+                    const meta = await drive.files.get({ fileId: folderId, fields: 'id,name' });
+                    if (meta && meta.data && meta.data.name) folderName = meta.data.name;
+                } catch (e) {
+                    // ignore metadata errors
+                }
+                if ((!files || files.length === 0) && !titlePhoto) {
+                    return res.status(404).json({ error: `No photos found for folderId: ${folderId}` });
+                }
+
+                return res.status(200).json({
+                    message: `Photos retrieved successfully for folderId: ${folderId}`,
+                    folderId,
+                    folderName,
+                    count: files.length,
+                    titlePhoto,
+                    data: files,
+                });
+            } catch (err) {
+                console.error('Error fetching photos by folderId:', err);
+                return res.status(500).json({ error: 'Failed to fetch photos by folderId', details: err.message });
+            }
+        }
+
+        if (!game) {
+            const availableGames = getAvailableGames();
+            return res.status(400).json({
+                error: 'Missing required query parameter: game',
+                example: '/api/photos?game=basketball',
+                availableGames: availableGames.length > 0 ? availableGames : 'None configured',
+            });
+        }
+
+        // Use the global game mapping (initialized at startup)
+        const result = await getPhotosByGame(game, gameMapping || {});
+
+        const photos = result.photos || [];
+        const titlePhoto = result.titlePhoto || null;
+
+        if ((!photos || photos.length === 0) && !titlePhoto) {
+            const availableGames = getAvailableGames();
+            return res.status(404).json({
+                error: `No photos found for: ${game}`,
+                availableGames: availableGames.length > 0 ? availableGames : 'None configured',
+            });
+        }
+
+        res.status(200).json({
+            message: `Photos retrieved successfully for game: ${game}`,
+            game,
+            count: photos.length,
+            titlePhoto,
+            redirected: !!result.redirected,
+            folderId: result.folderId,
+            data: photos,
+        });
+    } catch (error) {
+        console.error('Error in /api/photos:', error);
+        res.status(500).json({
+            error: 'An error occurred while retrieving photos.',
+            details: error.message,
+        });
+    }
+});
+
+// Proxy endpoint: Fetch and stream a photo from Google Drive
+app.get('/api/photo/:fileId', async (req, res) => {
+    try {
+        const { fileId } = req.params;
+        if (!fileId) {
+            return res.status(400).json({ error: 'Missing fileId parameter' });
+        }
+
+        const { initializeDrive } = require('./utils/googleDriveService.js');
+        const drive = await initializeDrive();
+
+        // Optional: fetch metadata for correct mimeType
+        let mimeType = 'image/jpeg';
+        try {
+            const meta = await drive.files.get({
+                fileId,
+                fields: 'mimeType'
+            });
+            if (meta?.data?.mimeType) {
+                mimeType = meta.data.mimeType;
+            }
+        } catch (err) {
+            console.warn(`Metadata fetch failed for ${fileId}:`, err.message);
+        }
+
+        // Fetch raw file stream
+        const driveResp = await drive.files.get(
+            { fileId, alt: 'media' },
+            { responseType: 'stream' }
+        );
+
+        res.setHeader('Content-Type', mimeType);
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+
+        // Pipe data directly from Google → client
+        driveResp.data
+            .on('error', (err) => {
+                console.error('Stream error:', err.message);
+                res.status(500).end('Stream error');
+            })
+            .pipe(res);
+
+    } catch (err) {
+        console.error('❌ /api/photo error:', err.message);
+        res.status(500).json({ error: 'Failed to fetch photo', details: err.message });
+    }
+});
+
+// Debug endpoint: List all discovered folders
+app.get('/api/debug/folders', async (req, res) => {
+    try {
+        const folders = await discoverGameFolders();
+        const cacheStatus = getCacheStatus();
+
+        res.status(200).json({
+            message: 'Available folders in Google Drive',
+            count: folders.length,
+            cacheStatus,
+            folders: folders.map(f => ({
+                name: f.name,
+                id: f.id,
+                created: f.createdTime,
+            })),
+        });
+    } catch (error) {
+        res.status(500).json({
+            error: 'Failed to discover folders',
+            details: error.message,
+        });
+    }
+});
+
+// Endpoint: List immediate children of a parent folder
+app.get('/api/folders/children', async (req, res) => {
+    try {
+        const parent = req.query.parent;
+        const children = await discoverSubfolders(parent);
+
+        res.status(200).json({
+            message: 'Child folders retrieved successfully',
+            count: children.length,
+            folders: children.map(f => ({ id: f.id, name: f.name, created: f.createdTime, modified: f.modifiedTime })),
+        });
+    } catch (error) {
+        res.status(500).json({
+            error: 'Failed to retrieve child folders',
+            details: error.message,
+        });
+    }
+});
+
+// Endpoint: List immediate children + a detected cover (title photo or first image)
+app.get('/api/folders/children-with-cover', async (req, res) => {
+    try {
+        const parent = req.query.parent;
+        const children = await discoverSubfolders(parent);
+
+        // Require drive helpers locally
+        const gsvc = require('./utils/googleDriveService.js');
+        const { getPhotosFromFolder } = gsvc;
+
+        const items = await Promise.all(children.map(async (c) => {
+            try {
+                const { files, titlePhoto } = await getPhotosFromFolder(c.id);
+                const coverId = (titlePhoto && titlePhoto.id) || (files && files[0] && files[0].id) || null;
+                return {
+                    id: c.id,
+                    name: c.name,
+                    created: c.createdTime,
+                    modified: c.modifiedTime,
+                    count: files ? files.length : 0,
+                    coverId,
+                    titlePhoto: titlePhoto || null,
+                };
+            } catch (e) {
+                return {
+                    id: c.id,
+                    name: c.name,
+                    created: c.createdTime,
+                    modified: c.modifiedTime,
+                    count: 0,
+                    coverId: null,
+                    titlePhoto: null,
+                };
+            }
+        }));
+
+        res.status(200).json({
+            message: 'Child folders with cover retrieved successfully',
+            count: items.length,
+            folders: items,
+        });
+    } catch (error) {
+        console.error('Failed to retrieve child folders with cover', error);
+        res.status(500).json({
+            error: 'Failed to retrieve child folders with cover',
+            details: error.message,
+        });
+    }
+});
+
+// Debug endpoint: Show current game mapping
+app.get('/api/debug/games', (req, res) => {
+    const mapping = getGameMapping();
+    const availableGames = getAvailableGames();
+
+    res.status(200).json({
+        message: 'Current game to folder mapping',
+        availableGames,
+        gameCount: availableGames.length,
+        mapping,
+    });
+});
+
+// Debug endpoint: Clear folder cache
+app.post('/api/debug/cache-clear', (req, res) => {
+    try {
+        clearFolderCache();
+        res.status(200).json({
+            message: 'Folder cache cleared. Will refresh on next request.',
+        });
+    } catch (error) {
+        res.status(500).json({
+            error: 'Failed to clear cache',
+            details: error.message,
+        });
+    }
+});
+
 startWatcher()
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);   
+// Initialize mapping helper used at startup
+let gameMapping = null;
+async function initializeServer() {
+    try {
+        gameMapping = await initializeGameMapping();
+    } catch (error) {
+        console.error('❌ Failed to initialize game mapping:', error.message);
+        console.error('Stack:', error.stack);
+        throw error;  // Re-throw so we see the actual issue at startup
+    }
+}
+
+// Initialize game mapping and then start server
+initializeServer().then(() => {
+    app.listen(PORT, () => {
+        console.log(`Server is running on http://localhost:${PORT}`);
+    });
+}).catch(error => {
+    console.error('Failed to start server:', error);
+    process.exit(1);
 })
 
