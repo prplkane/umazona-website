@@ -9,7 +9,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 16% 16%, rgba(255, 255, 255, 0.22), transparent 58%),
+  background: radial-gradient(circle at 16% 16%, rgba(47, 94, 229, 0.08), transparent 58%),
     var(--color-section-highlight);
   pointer-events: none;
 }
@@ -34,7 +34,7 @@
   font-size: 0.85rem;
   letter-spacing: 0.32em;
   text-transform: uppercase;
-  color: rgba(27, 83, 166, 0.75);
+  color: var(--color-text-muted);
   margin-bottom: 16px;
 }
 
@@ -43,19 +43,19 @@
   display: inline-block;
   width: 52px;
   height: 2px;
-  background: rgba(27, 83, 166, 0.35);
+  background: var(--color-border-soft);
 }
 
 .extras-header h2 {
   margin: 0 0 16px;
   font-size: clamp(2.1rem, 4vw, 3rem);
-  color: #102552;
+  color: var(--color-text-strong);
 }
 
 .extras-header p {
   margin: 0;
   font-size: clamp(1rem, 2.6vw, 1.2rem);
-  color: rgba(24, 52, 102, 0.75);
+  color: var(--color-text-muted);
   line-height: 1.7;
 }
 
@@ -67,37 +67,37 @@
 }
 
 .extras-card {
-  --extras-accent: #2b70cf;
+  --extras-accent: #2f5ee5;
   position: relative;
   display: flex;
   flex-direction: column;
   gap: clamp(16px, 3vw, 22px);
   padding: clamp(26px, 3.5vw, 36px);
   border-radius: 34px;
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(64, 133, 255, 0.18);
-  box-shadow: 0 28px 55px rgba(9, 31, 82, 0.18);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  box-shadow: var(--color-shadow-soft);
   text-decoration: none;
-  color: #142444;
+  color: var(--color-text-strong);
   overflow: hidden;
   min-height: clamp(240px, 26vw, 320px);
   transition: transform 0.25s ease, box-shadow 0.3s ease, border-color 0.25s ease;
 }
 
 .extras-card[data-accent='gallery'] {
-  --extras-accent: #94d9f5;
+  --extras-accent: #6ea6ff;
 }
 
 .extras-card[data-accent='archive'] {
-  --extras-accent: #d8ccfa;
+  --extras-accent: #a6b7ff;
 }
 
 .extras-card[data-accent='play'] {
-  --extras-accent: #b6f0d6;
+  --extras-accent: #5ac99f;
 }
 
 .extras-card[data-accent='hire'] {
-  --extras-accent: #ffe3a8;
+  --extras-accent: #f3c172;
 }
 
 .extras-card::before {
@@ -106,7 +106,7 @@
   inset: -40% -20% auto;
   height: 75%;
   background: linear-gradient(135deg, var(--extras-accent), rgba(255, 255, 255, 0));
-  opacity: 0.12;
+  opacity: 0.08;
   transform: rotate(-8deg);
   pointer-events: none;
 }
@@ -119,10 +119,11 @@
 
 .extras-card--interactive {
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--color-surface);
   text-align: left;
   font: inherit;
   padding: clamp(28px, 4vw, 40px);
+  border: none;
 }
 
 .extras-card--interactive:focus-visible {
@@ -143,9 +144,9 @@
   display: grid;
   place-items: center;
   font-size: 2.2rem;
-  background: radial-gradient(circle at 25% 20%, rgba(255, 255, 255, 0.95), rgba(126, 214, 255, 0.35));
-  color: #0f2a62;
-  box-shadow: 0 14px 28px rgba(73, 152, 226, 0.22);
+  background: radial-gradient(circle at 25% 20%, rgba(255, 255, 255, 0.95), rgba(126, 214, 255, 0.25));
+  color: var(--color-text-strong);
+  box-shadow: 0 14px 28px rgba(73, 152, 226, 0.15);
 }
 
 .extras-badge {
@@ -156,9 +157,9 @@
   font-size: 0.75rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  background: rgba(126, 214, 255, 0.2);
-  color: rgba(16, 44, 92, 0.78);
-  backdrop-filter: blur(6px);
+  background: rgba(47, 94, 229, 0.08);
+  color: var(--color-text-muted);
+  backdrop-filter: blur(4px);
 }
 
 .extras-badge--soon {
@@ -169,21 +170,21 @@
 .extras-card h3 {
   margin: 0;
   font-size: clamp(1.4rem, 3vw, 1.85rem);
-  color: #0f2754;
+  color: var(--color-text-strong);
 }
 
 .extras-card p {
   margin: 0;
   font-size: 1rem;
   line-height: 1.7;
-  color: rgba(26, 48, 96, 0.78);
+  color: var(--color-text-muted);
 }
 
 .extras-link {
   margin-top: auto;
   font-weight: 600;
   font-size: 0.95rem;
-  color: var(--extras-accent);
+  color: var(--color-accent);
 }
 
 .extras-card:hover .extras-link {
@@ -202,9 +203,9 @@
   overflow: hidden;
   border-radius: 34px;
   min-height: clamp(220px, 30vw, 400px);
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(63, 138, 255, 0.22);
-  box-shadow: 0 28px 70px rgba(42, 118, 210, 0.2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  box-shadow: var(--color-shadow-soft);
 }
 
 .extras-gallery-panel img {

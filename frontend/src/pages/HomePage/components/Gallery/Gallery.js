@@ -5,7 +5,7 @@ const mockAlbums = [
   {
     id: 'spring-cup-2025',
     title: 'Spring Cup · March 2025',
-    location: 'Sochi',
+    location: 'New York',
     cover:
       'https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&w=600&q=80',
     preview:
@@ -14,8 +14,8 @@ const mockAlbums = [
   },
   {
     id: 'corporate-night',
-    title: 'Corporate Night · Gazprom',
-    location: 'Moscow',
+    title: 'Corporate Night · FinLaunch',
+    location: 'Chicago',
     cover:
       'https://images.unsplash.com/photo-1529158062015-cad636e69505?auto=format&fit=crop&w=600&q=80',
     preview:
@@ -25,7 +25,7 @@ const mockAlbums = [
   {
     id: 'beach-quiz',
     title: 'Beach Trivia Sunset',
-    location: 'Adler',
+    location: 'Los Angeles',
     cover:
       'https://images.unsplash.com/photo-1530023367847-a683933f4177?auto=format&fit=crop&w=600&q=80',
     preview:
@@ -35,7 +35,7 @@ const mockAlbums = [
   {
     id: 'halloween-special',
     title: 'Halloween Special',
-    location: 'St. Petersburg',
+    location: 'Boston',
     cover:
       'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=600&q=80',
     preview:
@@ -45,7 +45,7 @@ const mockAlbums = [
   {
     id: 'family-day',
     title: 'Family Day Mini Quiz',
-    location: 'Krasnaya Polyana',
+    location: 'Austin',
     cover:
       'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=600&q=80',
     preview:

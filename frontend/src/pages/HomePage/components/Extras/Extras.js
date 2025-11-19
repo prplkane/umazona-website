@@ -6,7 +6,7 @@ const quizQuestions = [
     question: 'В какой стране родилась команда УмAZона?',
     options: ['Испания', 'США', 'Россия', 'Казахстан'],
     answer: 2,
-    fact: 'УмAZона появилась в Сочи — отсюда и любовь к ярким курортным вечеринкам.',
+    fact: 'УмAZона началась на побережье Майами — отсюда и любовь к ярким вечеринкам.',
   },
   {
     question: 'Сколько раундов мы обычно проводим за один квиз-вечер?',
@@ -165,7 +165,12 @@ function Extras() {
             <span className="extras-link">Запустить мини-квиз →</span>
           </button>
 
-          <a className="extras-card" data-accent="hire" href="/members">
+          <button
+            type="button"
+            className="extras-card extras-card--interactive"
+            data-accent="hire"
+            onClick={() => window.dispatchEvent(new CustomEvent('extras:hire'))}
+          >
             <div className="extras-card-header">
               <span className="extras-icon" aria-hidden="true">🤝</span>
               <span className="extras-badge">corporate</span>
@@ -174,8 +179,8 @@ function Extras() {
             <p>
               Создадим фирменный квиз под ваш бренд: сценарий, ведущий, призы и техническая команда — полный VIP-сервис.
             </p>
-            <span className="extras-link">Забронировать событие →</span>
-          </a>
+            <span className="extras-link">Оставить запрос →</span>
+          </button>
         </div>
 
         <div className="extras-gallery-row">

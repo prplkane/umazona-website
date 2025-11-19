@@ -1,6 +1,6 @@
 .events-section {
   padding: clamp(60px, 12vw, 110px) clamp(20px, 6vw, 70px);
-  background: linear-gradient(180deg, rgba(82, 168, 255, 0.22), rgba(255, 255, 255, 0.25));
+  background: var(--color-section-gradient);
 }
 
 .events-container {
@@ -22,7 +22,7 @@
   font-size: 0.85rem;
   letter-spacing: 0.32em;
   text-transform: uppercase;
-  color: rgba(27, 89, 187, 0.75);
+  color: var(--color-text-muted);
   margin-bottom: 16px;
 }
 
@@ -31,26 +31,26 @@
   display: inline-block;
   width: 52px;
   height: 2px;
-  background: rgba(179, 214, 255, 0.4);
+  background: var(--color-border-soft);
 }
 
 .events-heading h2 {
   margin: 0 0 16px;
   font-size: clamp(2.1rem, 4vw, 3rem);
-  color: #142959;
+  color: var(--color-text-strong);
 }
 
 .events-heading p {
   margin: 0;
   font-size: clamp(1rem, 2.6vw, 1.2rem);
-  color: rgba(30, 54, 105, 0.75);
+  color: var(--color-text-muted);
   line-height: 1.7;
 }
 
 .events-status {
   text-align: center;
   font-size: 1.1rem;
-  color: rgba(214, 230, 255, 0.85);
+  color: var(--color-text-muted);
 }
 
 .events-status.error {
@@ -58,10 +58,9 @@
 }
 
 .event-grid {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: clamp(18px, 3vw, 32px);
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  align-items: stretch;
 }
 
 .event-card {
@@ -71,10 +70,10 @@
   gap: clamp(16px, 3vw, 22px);
   padding: clamp(24px, 4vw, 36px);
   border-radius: 28px;
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(64, 133, 255, 0.18);
-  box-shadow: 0 28px 55px rgba(9, 31, 82, 0.18);
-  color: #142444;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  box-shadow: var(--color-shadow-soft);
+  color: var(--color-text-strong);
   overflow: hidden;
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
@@ -92,8 +91,8 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   font-size: 0.72rem;
-  color: rgba(30, 90, 180, 0.8);
-  background: rgba(173, 224, 255, 0.45);
+  color: var(--color-text-muted);
+  background: rgba(47, 94, 229, 0.08);
   backdrop-filter: blur(8px);
 }
 
@@ -107,7 +106,7 @@
   margin: 0;
   font-size: clamp(1.5rem, 3vw, 1.9rem);
   letter-spacing: -0.01em;
-  color: #122753;
+  color: var(--color-text-strong);
 }
 
 .event-card__body {
@@ -125,23 +124,23 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   font-size: 0.75rem;
-  color: rgba(33, 92, 187, 0.7);
+  color: var(--color-text-muted);
 }
 
 .event-card__value {
   font-size: 1rem;
-  color: #233257;
+  color: var(--color-text-strong);
 }
 
 .event-card__value--link a {
-  color: #0a5dff;
+  color: var(--color-accent);
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .event-card__value--link a:hover,
 .event-card__value--link a:focus-visible {
-  color: #0f2d82;
+  color: var(--color-text-strong);
   text-decoration: underline;
 }
 
@@ -175,41 +174,20 @@
   padding: 12px 24px;
   border-radius: 999px;
   border: none;
-  background: linear-gradient(135deg, rgba(140, 230, 255, 0.92), rgba(104, 172, 255, 0.92));
-  color: #081e48;
+  background: linear-gradient(135deg, #7ea5ff, #547cff);
+  color: #fdfdff;
   font-weight: 600;
   font-size: 0.95rem;
   letter-spacing: 0.06em;
   cursor: pointer;
-  box-shadow: 0 18px 32px rgba(88, 172, 255, 0.35);
+  box-shadow: 0 18px 32px rgba(47, 94, 229, 0.25);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .event-card__cta:hover,
 .event-card__cta:focus-visible {
   transform: translateY(-2px);
-  box-shadow: 0 24px 40px rgba(88, 172, 255, 0.45);
-}
-
-.show-more-button {
-  align-self: center;
-  padding: 12px 28px;
-  border-radius: 999px;
-  border: 1px solid rgba(26, 116, 255, 0.35);
-  background: rgba(255, 255, 255, 0.85);
-  color: #16428a;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-}
-
-.show-more-button:hover,
-.show-more-button:focus-visible {
-  transform: translateY(-2px);
-  background: rgba(231, 243, 255, 0.95);
-  box-shadow: 0 18px 30px rgba(26, 70, 166, 0.25);
+  box-shadow: 0 24px 40px rgba(47, 94, 229, 0.35);
 }
 
 @media (max-width: 720px) {
@@ -219,6 +197,11 @@
 }
 
 @media (min-width: 960px) {
+  .event-grid {
+    max-width: 920px;
+    margin: 0 auto;
+  }
+
   .event-card {
     grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
     align-items: stretch;

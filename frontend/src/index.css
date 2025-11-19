@@ -6,19 +6,21 @@
 }
 
 :root {
-  --color-bg-primary: linear-gradient(185deg, #0a318f 0%, #2b76d3 55%, #7ec8f1 100%);
+  --color-bg-primary: linear-gradient(180deg, #f4f6fb 0%, #eef1f7 65%, #ffffff 100%);
+  --color-bg-page: #f6f8fc;
   --color-surface: #ffffff;
-  --color-surface-soft: rgba(236, 246, 255, 0.9);
-  --color-surface-tinted: rgba(210, 229, 255, 0.85);
-  --color-text-strong: #0f2144;
-  --color-text-muted: rgba(18, 46, 96, 0.72);
-  --color-text-inverse: #f5fbff;
-  --color-accent: #1c63d9;
-  --color-accent-light: #6fb7f0;
-  --color-accent-warm: #ffd36f;
-  --color-border-soft: rgba(89, 177, 255, 0.35);
-  --color-section-gradient: linear-gradient(180deg, rgba(82, 168, 255, 0.18), rgba(255, 255, 255, 0.32));
-  --color-section-highlight: radial-gradient(circle at 82% 12%, rgba(255, 210, 150, 0.16), transparent 60%);
+  --color-surface-soft: #f9fbff;
+  --color-surface-tinted: #f1f4fb;
+  --color-text-strong: #142959;
+  --color-text-muted: rgba(20, 41, 89, 0.7);
+  --color-text-inverse: #fdfdff;
+  --color-accent: #2f5ee5;
+  --color-accent-light: #7ea5ff;
+  --color-accent-warm: #f5b055;
+  --color-border-soft: rgba(20, 41, 89, 0.1);
+  --color-section-gradient: linear-gradient(180deg, #f8faff 0%, #eef3fb 100%);
+  --color-section-highlight: radial-gradient(circle at 82% 12%, rgba(47, 94, 229, 0.08), transparent 62%);
+  --color-shadow-soft: 0 24px 45px rgba(12, 28, 62, 0.08);
 }
 
 /* 1. Global Smooth Scroll */
@@ -40,6 +42,7 @@ body {
 
   /* Foundation background */
   background: var(--color-bg-primary);
+  background-color: var(--color-bg-page);
   color: var(--color-text-strong);
   padding-top: var(--navbar-height, 80px);
   overflow-x: hidden;
@@ -58,7 +61,7 @@ body {
 section {
   /* Add padding and a border like your prototype */
   padding: 60px 20px;
-  border-bottom: 2px solid var(--color-border-soft);
+  border-bottom: 1px solid var(--color-border-soft);
   min-height: 300px; /* Give sections space */
 }
 
