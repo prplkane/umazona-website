@@ -7,11 +7,11 @@ const path = require('path');
 let driveInstance = null;
 let authorizationDetails = null;
 
-// Cache for folder discovery (TTL: 1 hour)
+// Cache for folder discovery (TTL: 2 minutes)
 const folderCache = {
     data: null,
     timestamp: null,
-    TTL: 60 * 60 * 1000, // 1 hour in milliseconds
+    TTL: 2 * 60 * 1000, // 2 minutes in milliseconds
 };
 
 // Cache for parent -> children folder listings
