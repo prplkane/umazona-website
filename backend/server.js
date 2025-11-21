@@ -11,7 +11,7 @@ const app = express();
 const db = require('./database.js');
 const { startWatcher } = require('./utils/csvWatcher.js');
 
-const CLEANUP_INTERVAL_MS = 60 * 60 * 1000;
+const CLEANUP_INTERVAL_MS = 2 * 60 * 1000;
 // Google Drive and game mapping utilities
 const { getPhotosByGame, discoverGameFolders, discoverSubfolders, getCacheStatus, clearFolderCache } = require('./utils/googleDriveService.js');
 const { initializeGameMapping, getGameFolderId, getAvailableGames, getGameMapping } = require('./utils/gameConfig.js');
