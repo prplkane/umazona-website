@@ -200,12 +200,27 @@
   transform: translateY(-1px);
 }
 
-@media (max-width: 768px) {
+/*@media (max-width: 768px) {
   .album-carousel {
     grid-auto-flow: row;
     overflow-x: hidden;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   }
+}*/
+
+.gallery_section {
+  background: none;
+}
+
+.album-carousel {
+  display: flex;
+  gap: 10px;
+  background: none;
+}
+
+.album-card {
+  box-shadow: none;
+  border: 1px solid var(--color-border-soft);
 }
 
 .album-drive-link {

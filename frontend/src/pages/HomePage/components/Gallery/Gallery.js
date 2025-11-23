@@ -154,7 +154,6 @@ function Gallery() {
       </div>
 
       {/* Simple modal viewer for active album */}
-      {/* Simple modal viewer for active album */}
       {active && (
         <div className="gallery-modal" onClick={() => setActive(null)}>
           <div className="gallery-modal-inner" onClick={(e) => e.stopPropagation()}>
