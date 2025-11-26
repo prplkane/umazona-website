@@ -17,10 +17,10 @@ const memberData = [
     ],
     lifeFacts: [
       { text: 'Сертифицированный специалист по Фен-Шуй', verdict: 'truth' },
-      { text: 'Прыгала с парашютом', verdict: 'truth' },
+      { text: 'Прыгала с парашютом', verdict: 'lie' },
       { text: 'Сыграла с командой Балаша Касумова в "Что? Где? Когда?"', verdict: 'truth' },
       { text: 'Коллекционирую спичечные коробки', verdict: 'lie' },
-      { text: 'Пронесла в самолет кухонный нож', verdict: 'lie' },
+      { text: 'Пронесла в самолет кухонный нож', verdict: 'truth' },
     ]
   },
   {
@@ -36,10 +36,10 @@ const memberData = [
       { label: 'В УмAZоне нравится', value: 'проверять ответы игроков' }
     ],
     lifeFacts: [
-      { text: 'Владею 3-мя языками', verdict: 'truth' },
+      { text: 'Владею 3-мя языками', verdict: 'lie' },
       { text: 'Продвинутый редактор Wikipedia', verdict: 'truth' },
       { text: 'Пропустила 2 класса школы', verdict: 'truth' },
-      { text: 'Ни разу не участвовала в политическом голосовании', verdict: 'lie' },
+      { text: 'Ни разу не участвовала в политическом голосовании', verdict: 'truth' },
       { text: 'Получала штраф за вождение в нетрезвом виде', verdict: 'lie' },
     ]
   },
@@ -58,16 +58,16 @@ const memberData = [
     lifeFacts: [
       { text: 'Случайно поступила на мех-мат, а закончила его с красным дипломом', verdict: 'truth' },
       { text: 'Помню дни рождения всех, даже тех, кого не помню', verdict: 'truth' },
-      { text: 'Обладаю топографическим кретинизмом, без навигатора из дома не выхожу', verdict: 'truth' },
+      { text: 'Обладаю топографическим кретинизмом, без навигатора из дома не выхожу', verdict: 'lie' },
       { text: 'Обожаю жареный лук и морепродукты', verdict: 'lie' },
-      { text: 'Путаю право и лево', verdict: 'lie' },
+      { text: 'Путаю право и лево', verdict: 'truth' },
     ]
   },
 ];
 
 function Members() {
   const teamPhoto = useMemo(
-    () => `${process.env.PUBLIC_URL || ''}/images/team-placeholder.jpg`,
+    () => `${process.env.PUBLIC_URL || ''}/images/umazonorganizers.png`,
     []
   );
 

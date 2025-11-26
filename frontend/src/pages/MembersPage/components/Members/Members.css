@@ -60,7 +60,7 @@
 .members-hero img {
   display: block;
   width: 100%;
-  height: clamp(220px, 35vw, 340px);
+  height: clamp(220px, 35vw, 500px);
   object-fit: cover;
 }
 

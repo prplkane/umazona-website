@@ -56,13 +56,11 @@
 
 .hero-logo {
   display: block;
-  width: clamp(260px, 62vw, 720px);
-  max-width: 840px;
+  width: clamp(260px, 62vw, 820px);
+  max-width: 920px;
   height: auto;
   padding: clamp(12px, 3vw, 22px);
   border-radius: clamp(38px, 6vw, 60px);
-  background: radial-gradient(circle at 65% 50%, rgba(255, 255, 255, 0.72), rgba(126, 214, 255, 0.15));
-  box-shadow: 0 24px 52px rgba(24, 74, 150, 0.24);
   filter: drop-shadow(0 20px 40px rgba(24, 62, 140, 0.28));
   transform: translateY(0);
   animation: float 6s ease-in-out infinite;
