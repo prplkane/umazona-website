@@ -44,17 +44,6 @@
   line-height: 1.7;
 }
 
-.album-carousel {
-  position: relative;
-  display: grid;
-  grid-auto-flow: column;
-  gap: clamp(20px, 3vw, 32px);
-  overflow-x: auto;
-  padding-bottom: 16px;
-  scroll-snap-type: x mandatory;
-  z-index: 1;
-}
-
 .album-carousel::-webkit-scrollbar {
   height: 6px;
 }
@@ -66,7 +55,8 @@
 
 .album-card {
   position: relative;
-  width: clamp(240px, 26vw, 320px);
+  width: 100%;
+  max-width: 320px; 
   border-radius: 32px;
   background: var(--color-surface);
   border: 1px solid var(--color-border-soft);
@@ -74,8 +64,9 @@
   display: flex;
   flex-direction: column;
   scroll-snap-align: center;
-  box-shadow: var(--color-shadow-soft);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: none;
+  border: 1px solid var(--color-border-soft);
 }
 
 .album-card:hover {
@@ -239,12 +230,18 @@
   transform: translateY(-1px);
 }
 
-@media (max-width: 768px) {
-  .album-carousel {
-    grid-auto-flow: row;
-    overflow-x: hidden;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  }
+.gallery_section {
+  background: none;
+}
+
+.album-carousel {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); 
+  gap: 24px 4px; 
+  background: none;
+  position: relative;
+  overflow-y: auto;
+  z-index: 1;
 }
 
 .album-drive-link {
