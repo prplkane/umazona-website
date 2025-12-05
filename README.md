@@ -1,6 +1,6 @@
 # Umazona Trivia Website
 
-The official website for **Umazona** — a premier trivia/quiz experience group. This is a full-stack web application featuring event management, team member profiles, media galleries, corporate hire requests, and an admin panel for content management.
+The prototype website for **Umazona** — a premier trivia/quiz experience group. This is a full-stack web application featuring event management, team member profiles, media galleries, corporate hire requests, and an admin panel for content management.
 
 Built with **React** (frontend), **Express.js** (backend), **SQLite** (database), and **Google Drive API** (media integration).
 
@@ -122,40 +122,6 @@ Your browser should open to `http://localhost:3001` automatically.
 
 ---
 
-## 📋 Configuration
-
-### Environment Variables
-
-Create a `.env` file in the `backend/` folder:
-
-```env
-# Server
-PORT=3000
-NODE_ENV=development
-
-# Database
-DB_PATH=./umazona.db
-
-# Google Drive API
-GOOGLE_DRIVE_API_KEY=your_api_key_here
-GOOGLE_DRIVE_FOLDER_ID=your_folder_id_here
-
-# Email (Nodemailer)
-EMAIL_SERVICE=gmail
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASSWORD=your_app_password_here
-CONTACT_RECIPIENTS=email1@example.com,email2@example.com
-
-# Admin API
-ADMIN_API_TOKEN=your_secret_token_here
-
-# Frontend (optional, in frontend/.env)
-REACT_APP_PUBLIC_API_BASE_URL=http://localhost:3000
-REACT_APP_ADMIN_API_BASE_URL=http://localhost:3000
-```
-
----
-
 ## 📊 Database Schema
 
 ### `contacts` table
@@ -236,61 +202,6 @@ Gallery photos are fetched from **Google Drive**:
 
 ---
 
-## 🔐 Admin Panel
-
-The admin panel (if enabled in code) allows you to:
-- View and manage contact form submissions
-- Add/edit events
-- View hire requests
-- Clear caches
-
-**Access:** Protected by `ADMIN_API_TOKEN` (passed in request headers)
-
----
-
-## 🌐 API Endpoints
-
-### Public Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/` | Health check |
-| GET | `/api/events` | List all events |
-| GET | `/api/games` | List available game folders (from Google Drive) |
-| GET | `/api/photos/:gameId` | Get photos for a specific game |
-| POST | `/api/contacts` | Submit contact form |
-| POST | `/api/hire` | Submit corporate hire request |
-| POST | `/api/reservations` | Book a seat for an event |
-
-### Admin Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/admin/contacts` | List contact submissions |
-| GET | `/admin/hire-requests` | List hire requests |
-| POST | `/admin/events` | Create event |
-| PUT | `/admin/events/:id` | Update event |
-| DELETE | `/admin/events/:id` | Delete event |
-| POST | `/admin/cache-clear` | Clear caches |
-
-> All admin endpoints require `Authorization: Bearer <ADMIN_API_TOKEN>` header.
-
----
-
-## 🛠️ Development
-
-### Frontend Development
-
-- **Hot reload:** Changes to React files auto-refresh the browser
-- **Smooth scroll:** Enabled after initial page load to prevent unwanted scrolls
-- **Responsive:** Mobile-first design with CSS media queries
-
-### Backend Development
-
-- **Auto-restart:** `nodemon` watches server files and restarts on changes
-- **CSV watcher:** Monitors `backend/uploads/` for new `events.csv` files
-- **CORS enabled:** Frontend can make requests to backend
-
 ### Common Commands
 
 ```bash
@@ -345,27 +256,12 @@ MIT License — See `LICENSE` file for details.
 
 ---
 
-## 👥 Team
-
-- **Евгения** — Event lead, experience designer
-- **Дарья** — Question curator, host
-- **Екатерина** — Operations, logistics
-
----
-
 ## 🤝 Contributing
 
 This repo is for the Umazona team. For feature requests or bug reports, reach out via email or the contact form on the website.
 
 ---
 
-## 📞 Contact
-
-- **Email:** hello@umazona.com
-- **Phone:** +7 (555) 123-4567
-- **Website:** https://umazona.com (when deployed)
-
----
 
 **Last Updated:** December 2025  
 **Version:** 0.1.0
